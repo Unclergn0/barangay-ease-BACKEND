@@ -1,0 +1,1006 @@
+{
+  "system_info": {
+    "app_name": "BarangayEase",
+    "city": "Muntinlupa City",
+    "region": "National Capital Region",
+    "total_barangays": 9,
+    "barangays": [
+      "Alabang",
+      "Bayanan",
+      "Buli",
+      "Cupang",
+      "Poblacion",
+      "Putatan",
+      "Sucat",
+      "Tunasan",
+      "Ayala Alabang"
+    ],
+    "default_currency": "PHP",
+    "default_language_behavior": "Match the resident's latest message: English, Filipino, or Taglish.",
+    "fee_rule": "Use the configured fee_php value for the resident's barangay. A value of 0 means FREE. Never substitute another barangay's fee."
+  },
+  "global_documents_catalog": [
+    {
+      "id": "barangay-clearance",
+      "title": "Barangay Clearance",
+      "default_requirements": [
+        "Valid government-issued ID",
+        "Proof of residency",
+        "Purpose of request",
+        "Community Tax Certificate (Cedula), when required"
+      ]
+    },
+    {
+      "id": "certificate-residency",
+      "title": "Certificate of Residency",
+      "default_requirements": [
+        "Valid government-issued ID",
+        "Proof of address or residency",
+        "Length of residency"
+      ]
+    },
+    {
+      "id": "certificate-indigency",
+      "title": "Certificate of Indigency",
+      "default_requirements": [
+        "Valid government-issued ID",
+        "Proof of residency",
+        "Specific purpose",
+        "Declared monthly family or household income"
+      ]
+    },
+    {
+      "id": "first-time-job-seeker",
+      "title": "First-Time Job Seeker Certificate",
+      "law_basis": "Republic Act 11261",
+      "default_requirements": [
+        "Valid government-issued ID or student ID",
+        "Proof of residency",
+        "Accomplished First-Time Job Seeker Oath Form"
+      ]
+    },
+    {
+      "id": "business-permit-clearance",
+      "title": "Business Permit Clearance",
+      "default_requirements": [
+        "Valid government-issued ID",
+        "Business name and business address",
+        "Nature of business",
+        "Mayor's Permit or permit application details"
+      ]
+    },
+    {
+      "id": "business-permit-endorsement",
+      "title": "Business Permit Endorsement",
+      "default_requirements": [
+        "Valid ID",
+        "Business details",
+        "Proof of business location",
+        "Additional permits when applicable"
+      ]
+    },
+    {
+      "id": "barangay-id",
+      "title": "Barangay ID",
+      "default_requirements": [
+        "Valid ID or student ID",
+        "Proof of residency",
+        "1x1 or 2x2 ID photo",
+        "Emergency contact details"
+      ]
+    },
+    {
+      "id": "good-moral",
+      "title": "Certificate of Good Moral Character",
+      "default_requirements": [
+        "Valid ID",
+        "Barangay Clearance",
+        "Purpose of request"
+      ]
+    },
+    {
+      "id": "single-status",
+      "title": "Certificate of Single Status or Cohabitation",
+      "default_requirements": [
+        "Valid IDs of concerned parties",
+        "Supporting affidavit when required",
+        "Proof of residency"
+      ]
+    },
+    {
+      "id": "guardianship",
+      "title": "Barangay Guardianship Certificate",
+      "default_requirements": [
+        "Valid ID of guardian",
+        "Minor's PSA Birth Certificate",
+        "Supporting guardianship document or affidavit"
+      ]
+    }
+  ],
+  "city_wide_services": [
+    {
+      "category": "Health Services",
+      "services": [
+        "Health center consultation",
+        "Vaccination programs",
+        "Maternal and child health services",
+        "Medical assistance",
+        "Medicine assistance"
+      ]
+    },
+    {
+      "category": "Social Services",
+      "services": [
+        "Senior citizen assistance",
+        "PWD assistance",
+        "Burial assistance",
+        "Educational assistance",
+        "Medical financial assistance",
+        "Indigent assistance"
+      ]
+    },
+    {
+      "category": "Community Services",
+      "services": [
+        "Disaster preparedness",
+        "Fire and rescue assistance",
+        "Community clean-up programs",
+        "Livelihood programs",
+        "Feeding programs"
+      ]
+    }
+  ],
+  "city_wide_emergency_contacts": {
+    "muntinlupa_emergency_hotline": "137-175",
+    "city_emergency_numbers": [
+      "(02) 8373-5165",
+      "0921-542-7123",
+      "0927-257-9322"
+    ]
+  },
+  "barangay_profiles": [
+    {
+      "id": "brgy-alabang",
+      "name": "Alabang",
+      "district": 2,
+      "basic_profile": {
+        "address": "Montillano Extension, Alabang, Muntinlupa City",
+        "landmark": "Near Starmall / Viñalon Covered Court",
+        "official_facebook": "https://facebook.com/BarangayAlabangOfficial"
+      },
+      "contact_information": {
+        "landline": "(02) 8842-0468",
+        "mobile_hotline": "0917-567-8865",
+        "email": "alabang@muntinlupacity.gov.ph"
+      },
+      "office_hours": {
+        "weekdays": "8:00 AM - 5:00 PM",
+        "saturday": "Closed",
+        "cutoff_time": "4:00 PM"
+      },
+      "fees_and_processing": {
+        "barangay_clearance": {
+          "fee_php": 100,
+          "processing_time": "20 minutes"
+        },
+        "certificate_of_indigency": {
+          "fee_php": 0,
+          "processing_time": "15 minutes"
+        },
+        "residency_certificate": {
+          "fee_php": 50,
+          "processing_time": "15 minutes"
+        },
+        "first_time_jobseeker": {
+          "fee_php": 0,
+          "processing_time": "20 minutes"
+        },
+        "business_permit_clearance": {
+          "fee_php": 100,
+          "processing_time": "20 minutes"
+        },
+        "business_permit_endorsement": {
+          "fee_php": 100,
+          "processing_time": "20 minutes"
+        },
+        "barangay_id": {
+          "fee_php": 100,
+          "processing_time": "20 minutes"
+        },
+        "good_moral": {
+          "fee_php": 50,
+          "processing_time": "15 minutes"
+        },
+        "single_status": {
+          "fee_php": 100,
+          "processing_time": "20 minutes"
+        },
+        "guardianship": {
+          "fee_php": 100,
+          "processing_time": "20 minutes"
+        }
+      },
+      "services": [
+        "Barangay Clearance",
+        "Certificate of Indigency",
+        "Certificate of Residency",
+        "First-Time Job Seeker assistance",
+        "Barangay ID",
+        "Health assistance",
+        "Senior citizen assistance",
+        "PWD assistance",
+        "Community and emergency assistance"
+      ],
+      "health_center": {
+        "name": "Alabang Main Health Center",
+        "operating_hours": "Monday to Friday, 8:00 AM - 5:00 PM",
+        "vaccination_schedule": "Wednesdays, 8:00 AM - 12:00 NN"
+      },
+      "emergency_and_disaster": {
+        "drrm_hotline": "(02) 8842-2292",
+        "evacuation_centers": [
+          "Alabang Elementary School",
+          "Viñalon Covered Court"
+        ]
+      },
+      "security_and_tanod": {
+        "tanod_hotline": "(02) 8842-0468",
+        "curfew": "10:00 PM to 4:00 AM"
+      }
+    },
+    {
+      "id": "brgy-bayanan",
+      "name": "Bayanan",
+      "district": 1,
+      "basic_profile": {
+        "address": "Purok 6, Interior Bayanan, Baywalk, Muntinlupa City",
+        "landmark": "Near Bayanan Baywalk"
+      },
+      "contact_information": {
+        "landline": "(02) 8403-6459",
+        "mobile_hotline": "0917-456-8864",
+        "email": "bayanan@muntinlupacity.gov.ph"
+      },
+      "fees_and_processing": {
+        "barangay_clearance": {
+          "fee_php": 70,
+          "processing_time": "15 minutes"
+        },
+        "certificate_of_indigency": {
+          "fee_php": 0,
+          "processing_time": "15 minutes"
+        },
+        "residency_certificate": {
+          "fee_php": 50,
+          "processing_time": "15 minutes"
+        },
+        "first_time_jobseeker": {
+          "fee_php": 0,
+          "processing_time": "20 minutes"
+        },
+        "business_permit_clearance": {
+          "fee_php": 100,
+          "processing_time": "20 minutes"
+        },
+        "business_permit_endorsement": {
+          "fee_php": 100,
+          "processing_time": "20 minutes"
+        },
+        "barangay_id": {
+          "fee_php": 100,
+          "processing_time": "20 minutes"
+        },
+        "good_moral": {
+          "fee_php": 50,
+          "processing_time": "15 minutes"
+        },
+        "single_status": {
+          "fee_php": 100,
+          "processing_time": "20 minutes"
+        },
+        "guardianship": {
+          "fee_php": 100,
+          "processing_time": "20 minutes"
+        }
+      },
+      "services": [
+        "Barangay document requests",
+        "Free use of chairs and tables",
+        "Nebulizer assistance",
+        "Barangay pharmacy and medicine assistance",
+        "Garbage collection",
+        "Ambulance assistance",
+        "Financial assistance",
+        "Free circumcision programs",
+        "Pet spay and neuter programs",
+        "Drainage declogging"
+      ],
+      "emergency_and_disaster": {
+        "drrm_hotline": "(02) 8403-6480",
+        "evacuation_centers": [
+          "Bayanan Baywalk Covered Court",
+          "Bayanan Elementary School"
+        ]
+      }
+    },
+    {
+      "id": "brgy-buli",
+      "name": "Buli",
+      "district": 2,
+      "basic_profile": {
+        "address": "Main Road, Buli, Muntinlupa City",
+        "landmark": "Buli Covered Court"
+      },
+      "contact_information": {
+        "landline": "(02) 8772-3566",
+        "mobile_hotline": "0917-890-8868",
+        "email": "buli@muntinlupacity.gov.ph"
+      },
+      "fees_and_processing": {
+        "barangay_clearance": {
+          "fee_php": 70,
+          "processing_time": "15 minutes"
+        },
+        "certificate_of_indigency": {
+          "fee_php": 0,
+          "processing_time": "15 minutes"
+        },
+        "residency_certificate": {
+          "fee_php": 50,
+          "processing_time": "15 minutes"
+        },
+        "first_time_jobseeker": {
+          "fee_php": 0,
+          "processing_time": "20 minutes"
+        },
+        "business_permit_clearance": {
+          "fee_php": 100,
+          "processing_time": "20 minutes"
+        },
+        "business_permit_endorsement": {
+          "fee_php": 100,
+          "processing_time": "20 minutes"
+        },
+        "barangay_id": {
+          "fee_php": 100,
+          "processing_time": "20 minutes"
+        },
+        "good_moral": {
+          "fee_php": 50,
+          "processing_time": "15 minutes"
+        },
+        "single_status": {
+          "fee_php": 100,
+          "processing_time": "20 minutes"
+        },
+        "guardianship": {
+          "fee_php": 100,
+          "processing_time": "20 minutes"
+        }
+      },
+      "services": [
+        "Barangay document requests",
+        "Health assistance",
+        "Senior citizen assistance",
+        "PWD assistance",
+        "Community clean-up",
+        "Disaster and emergency assistance"
+      ],
+      "emergency_and_disaster": {
+        "drrm_hotline": "(02) 8850-5090",
+        "evacuation_centers": [
+          "Buli Elementary School Gym",
+          "Buli Covered Court"
+        ]
+      }
+    },
+    {
+      "id": "brgy-cupang",
+      "name": "Cupang",
+      "district": 2,
+      "basic_profile": {
+        "address": "Alon Street, Purok 5, Cupang, Muntinlupa City",
+        "landmark": "Near Interplex Industrial Park"
+      },
+      "contact_information": {
+        "landline": "(02) 8842-7194",
+        "mobile_hotline": "0917-789-8867",
+        "email": "cupang@muntinlupacity.gov.ph"
+      },
+      "fees_and_processing": {
+        "barangay_clearance": {
+          "fee_php": 80,
+          "processing_time": "20 minutes"
+        },
+        "certificate_of_indigency": {
+          "fee_php": 0,
+          "processing_time": "15 minutes"
+        },
+        "residency_certificate": {
+          "fee_php": 50,
+          "processing_time": "15 minutes"
+        },
+        "first_time_jobseeker": {
+          "fee_php": 0,
+          "processing_time": "20 minutes"
+        },
+        "business_permit_clearance": {
+          "fee_php": 100,
+          "processing_time": "20 minutes"
+        },
+        "business_permit_endorsement": {
+          "fee_php": 100,
+          "processing_time": "20 minutes"
+        },
+        "barangay_id": {
+          "fee_php": 100,
+          "processing_time": "20 minutes"
+        },
+        "good_moral": {
+          "fee_php": 50,
+          "processing_time": "15 minutes"
+        },
+        "single_status": {
+          "fee_php": 100,
+          "processing_time": "20 minutes"
+        },
+        "guardianship": {
+          "fee_php": 100,
+          "processing_time": "20 minutes"
+        }
+      },
+      "services": [
+        "Barangay document requests",
+        "Health services assistance",
+        "Senior citizen assistance",
+        "PWD assistance",
+        "Community programs",
+        "Fire and rescue assistance"
+      ],
+      "emergency_and_disaster": {
+        "drrm_hotline": "(02) 8850-3259",
+        "evacuation_centers": [
+          "Cupang Elementary School",
+          "Alabang Hills Village Gym"
+        ]
+      }
+    },
+    {
+      "id": "brgy-poblacion",
+      "name": "Poblacion",
+      "district": 1,
+      "basic_profile": {
+        "address": "Rizal St., Poblacion, Muntinlupa City",
+        "landmark": "Near Canto Covered Court / PLMUN"
+      },
+      "contact_information": {
+        "landline": "(02) 8886-9753",
+        "mobile_hotline": "0917-234-8862",
+        "email": "poblacion@muntinlupacity.gov.ph"
+      },
+      "fees_and_processing": {
+        "barangay_clearance": {
+          "fee_php": 75,
+          "processing_time": "20 minutes"
+        },
+        "certificate_of_indigency": {
+          "fee_php": 0,
+          "processing_time": "15 minutes"
+        },
+        "residency_certificate": {
+          "fee_php": 50,
+          "processing_time": "15 minutes"
+        },
+        "first_time_jobseeker": {
+          "fee_php": 0,
+          "processing_time": "20 minutes"
+        },
+        "business_permit_clearance": {
+          "fee_php": 100,
+          "processing_time": "20 minutes"
+        },
+        "business_permit_endorsement": {
+          "fee_php": 100,
+          "processing_time": "20 minutes"
+        },
+        "barangay_id": {
+          "fee_php": 100,
+          "processing_time": "20 minutes"
+        },
+        "good_moral": {
+          "fee_php": 50,
+          "processing_time": "15 minutes"
+        },
+        "single_status": {
+          "fee_php": 100,
+          "processing_time": "20 minutes"
+        },
+        "guardianship": {
+          "fee_php": 100,
+          "processing_time": "20 minutes"
+        }
+      },
+      "services": [
+        "Barangay document requests",
+        "Business-related clearances",
+        "Health assistance",
+        "Senior citizen assistance",
+        "PWD assistance",
+        "Community and social services",
+        "Disaster response"
+      ],
+      "emergency_and_disaster": {
+        "drrm_hotline": "(02) 8886-9753",
+        "evacuation_centers": [
+          "MCTI Covered Court",
+          "PLMUN Gymnasium"
+        ]
+      }
+    },
+    {
+      "id": "brgy-putatan",
+      "name": "Putatan",
+      "district": 1,
+      "basic_profile": {
+        "address": "Bruger Subdivision, Putatan, Muntinlupa City",
+        "landmark": "Near Muntinlupa City Hall"
+      },
+      "contact_information": {
+        "landline": "(02) 8862-0407",
+        "mobile_hotline": "0917-345-8863",
+        "email": "putatan@muntinlupacity.gov.ph"
+      },
+      "fees_and_processing": {
+        "barangay_clearance": {
+          "fee_php": 80,
+          "processing_time": "15 minutes"
+        },
+        "certificate_of_indigency": {
+          "fee_php": 0,
+          "processing_time": "15 minutes"
+        },
+        "residency_certificate": {
+          "fee_php": 50,
+          "processing_time": "15 minutes"
+        },
+        "first_time_jobseeker": {
+          "fee_php": 0,
+          "processing_time": "20 minutes"
+        },
+        "business_permit_clearance": {
+          "fee_php": 100,
+          "processing_time": "20 minutes"
+        },
+        "business_permit_endorsement": {
+          "fee_php": 100,
+          "processing_time": "20 minutes"
+        },
+        "barangay_id": {
+          "fee_php": 100,
+          "processing_time": "20 minutes"
+        },
+        "good_moral": {
+          "fee_php": 50,
+          "processing_time": "15 minutes"
+        },
+        "single_status": {
+          "fee_php": 100,
+          "processing_time": "20 minutes"
+        },
+        "guardianship": {
+          "fee_php": 100,
+          "processing_time": "20 minutes"
+        }
+      },
+      "services": [
+        "Barangay Certification for Residency",
+        "Barangay Clearance",
+        "Barangay Indigency",
+        "Fire and Rescue Assistance",
+        "VAWC Assistance",
+        "Lupon Tagapamayapa",
+        "Health Services Assistance",
+        "Senior Citizen Assistance",
+        "PWD Assistance",
+        "Clean-up Drive",
+        "Ayuda and Feeding Programs"
+      ],
+      "emergency_and_disaster": {
+        "drrm_hotline": "(02) 8862-0408",
+        "evacuation_centers": [
+          "Putatan Elementary School",
+          "Lakeview Covered Court"
+        ]
+      }
+    },
+    {
+      "id": "brgy-sucat",
+      "name": "Sucat",
+      "district": 2,
+      "basic_profile": {
+        "address": "M.L. Quezon St., Sucat, Muntinlupa City",
+        "landmark": "Near Sucat PNR Station"
+      },
+      "contact_information": {
+        "landline": "(02) 8553-9390",
+        "mobile_hotline": "0917-901-8869",
+        "email": "sucat@muntinlupacity.gov.ph"
+      },
+      "fees_and_processing": {
+        "barangay_clearance": {
+          "fee_php": 80,
+          "processing_time": "20 minutes"
+        },
+        "certificate_of_indigency": {
+          "fee_php": 0,
+          "processing_time": "15 minutes"
+        },
+        "residency_certificate": {
+          "fee_php": 50,
+          "processing_time": "15 minutes"
+        },
+        "first_time_jobseeker": {
+          "fee_php": 0,
+          "processing_time": "20 minutes"
+        },
+        "business_permit_clearance": {
+          "fee_php": 100,
+          "processing_time": "20 minutes"
+        },
+        "business_permit_endorsement": {
+          "fee_php": 100,
+          "processing_time": "20 minutes"
+        },
+        "barangay_id": {
+          "fee_php": 100,
+          "processing_time": "20 minutes"
+        },
+        "good_moral": {
+          "fee_php": 50,
+          "processing_time": "15 minutes"
+        },
+        "single_status": {
+          "fee_php": 100,
+          "processing_time": "20 minutes"
+        },
+        "guardianship": {
+          "fee_php": 100,
+          "processing_time": "20 minutes"
+        }
+      },
+      "services": [
+        "Barangay Clearance",
+        "Certificate of Residency",
+        "Certificate of Indigency",
+        "First-Time Job Seeker Certificate",
+        "Community Tax Certificate",
+        "Health services",
+        "Environmental services",
+        "Barangay Protection Order",
+        "Indigent financial assistance"
+      ],
+      "emergency_and_disaster": {
+        "drrm_hotline": "(02) 8553-9391",
+        "evacuation_centers": [
+          "Sucat Elementary School",
+          "Solano Hills Covered Court"
+        ]
+      }
+    },
+    {
+      "id": "brgy-tunasan",
+      "name": "Tunasan",
+      "district": 1,
+      "basic_profile": {
+        "address": "E. Rodriguez St., Tunasan, Muntinlupa City",
+        "landmark": "Near SM Center Muntinlupa"
+      },
+      "contact_information": {
+        "landline": "(02) 8862-2918",
+        "mobile_hotline": "0917-123-8861",
+        "email": "info@barangaytunasan.gov.ph"
+      },
+      "fees_and_processing": {
+        "barangay_clearance": {
+          "fee_php": 80,
+          "processing_time": "15 minutes"
+        },
+        "certificate_of_indigency": {
+          "fee_php": 0,
+          "processing_time": "15 minutes"
+        },
+        "residency_certificate": {
+          "fee_php": 50,
+          "processing_time": "15 minutes"
+        },
+        "first_time_jobseeker": {
+          "fee_php": 0,
+          "processing_time": "20 minutes"
+        },
+        "business_permit_clearance": {
+          "fee_php": 100,
+          "processing_time": "20 minutes"
+        },
+        "business_permit_endorsement": {
+          "fee_php": 100,
+          "processing_time": "20 minutes"
+        },
+        "barangay_id": {
+          "fee_php": 100,
+          "processing_time": "20 minutes"
+        },
+        "good_moral": {
+          "fee_php": 50,
+          "processing_time": "15 minutes"
+        },
+        "single_status": {
+          "fee_php": 100,
+          "processing_time": "20 minutes"
+        },
+        "guardianship": {
+          "fee_php": 100,
+          "processing_time": "20 minutes"
+        }
+      },
+      "services": [
+        "Barangay document requests",
+        "Senior citizen medical checkups",
+        "Dalaw-Kalinga for bedridden senior citizens",
+        "Free use of chairs, tables, and tents",
+        "Flu vaccination programs",
+        "Dialysis assistance",
+        "Chemotherapy assistance",
+        "School uniform assistance",
+        "Drainage declogging",
+        "Free school transportation programs"
+      ],
+      "emergency_and_disaster": {
+        "drrm_hotline": "(02) 8862-2934",
+        "evacuation_centers": [
+          "Tunasan Elementary School Gym",
+          "Victoria Homes Covered Court"
+        ]
+      }
+    },
+    {
+      "id": "brgy-ayala-alabang",
+      "name": "Ayala Alabang",
+      "district": 2,
+      "basic_profile": {
+        "address": "Narra Avenue, Ayala Alabang Village, Muntinlupa City",
+        "landmark": "Near Cuenca Community Center"
+      },
+      "contact_information": {
+        "landline": "(02) 8807-2472",
+        "mobile_hotline": "0917-678-8866",
+        "email": "ayalaalabang@muntinlupacity.gov.ph"
+      },
+      "fees_and_processing": {
+        "barangay_clearance": {
+          "fee_php": 150,
+          "processing_time": "15 minutes"
+        },
+        "certificate_of_indigency": {
+          "fee_php": 0,
+          "processing_time": "15 minutes"
+        },
+        "residency_certificate": {
+          "fee_php": 100,
+          "processing_time": "10 minutes"
+        },
+        "first_time_jobseeker": {
+          "fee_php": 0,
+          "processing_time": "20 minutes"
+        },
+        "business_permit_clearance": {
+          "fee_php": 100,
+          "processing_time": "20 minutes"
+        },
+        "business_permit_endorsement": {
+          "fee_php": 100,
+          "processing_time": "20 minutes"
+        },
+        "barangay_id": {
+          "fee_php": 100,
+          "processing_time": "20 minutes"
+        },
+        "good_moral": {
+          "fee_php": 50,
+          "processing_time": "15 minutes"
+        },
+        "single_status": {
+          "fee_php": 100,
+          "processing_time": "20 minutes"
+        },
+        "guardianship": {
+          "fee_php": 100,
+          "processing_time": "20 minutes"
+        }
+      },
+      "services": [
+        "Barangay document requests",
+        "Health assistance",
+        "Senior citizen assistance",
+        "PWD assistance",
+        "Community programs",
+        "Emergency and disaster assistance"
+      ],
+      "emergency_and_disaster": {
+        "drrm_hotline": "(02) 8807-2472",
+        "evacuation_centers": [
+          "De La Salle Zobel Gym",
+          "Cuenca Community Center"
+        ]
+      }
+    }
+  ],
+  "website_online_service_request_process": {
+    "source": "BarangayEase ResidentWEB/Resident.html, ResidentWEB/webjs/dashboard.js, and backend ServiceRequestController.java, FileStorageService.java, ServiceRequest.java",
+    "scope": "The online workflow below applies to the ten document services available in the Resident Dashboard. It describes request submission and tracking, not guaranteed online issuance or delivery.",
+    "online_document_request": {
+      "available": true,
+      "eligible_user": "Authenticated resident account",
+      "steps": [
+        "Log in to the BarangayEase Resident Account.",
+        "Open the Resident Dashboard and go to Request Barangay Services.",
+        "Select one of the ten document services. The website displays the requirements for the selected service.",
+        "Prepare the listed supporting documents and upload at least one file.",
+        "Enter the purpose of the request.",
+        "Enter the required preferred pickup date and preferred pickup time.",
+        "Submit the service request. The website sends it to the backend and creates a request record with Pending status.",
+        "After successful submission, the website displays a success message and opens My Transactions & Requests.",
+        "Open the transaction list to review the request ID, service type, submission date, fee display if supplied by the backend, purpose, and current status."
+      ],
+      "form_fields": [
+        {
+          "field": "Service type",
+          "required": true,
+          "notes": "Must be one of the ten service types accepted by the backend."
+        },
+        {
+          "field": "Purpose",
+          "required": true,
+          "notes": "Maximum 2,000 characters in backend validation."
+        },
+        {
+          "field": "Preferred pickup date",
+          "required": true,
+          "notes": "Required by the Resident Dashboard form."
+        },
+        {
+          "field": "Preferred pickup time",
+          "required": true,
+          "notes": "Required by the Resident Dashboard form."
+        },
+        {
+          "field": "Supporting documents",
+          "required": true,
+          "notes": "At least one file; maximum five files accepted by the backend."
+        }
+      ],
+      "upload_rules": {
+        "extensions": [
+          "PDF",
+          "JPG",
+          "JPEG",
+          "PNG"
+        ],
+        "max_files": 5,
+        "max_size_per_file_mb": 10,
+        "validation": "Backend checks the file extension and verifies the file content signature. A file with a mismatched extension/content is rejected."
+      },
+      "tracking": {
+        "location": "Resident Dashboard > My Transactions & Requests",
+        "endpoint": "GET /api/services/transactions",
+        "resident_scope": "Residents can view only their own requests.",
+        "file_access": "The resident can preview or download attachments belonging to their own request."
+      },
+      "request_statuses": {
+        "initial": "Pending",
+        "admin_status_transitions": [
+          "Pending -> Under Review",
+          "Pending -> Approved",
+          "Pending -> Rejected",
+          "Under Review -> Approved",
+          "Under Review -> Rejected",
+          "Approved -> Ready for Pickup",
+          "Approved -> Under Review",
+          "Ready for Pickup -> Completed",
+          "Rejected -> Under Review"
+        ],
+        "explanation": "The assigned barangay admin updates the status. The system sends a status-change notification. Do not tell a resident that a request is approved or ready for pickup unless the displayed request status confirms it."
+      },
+      "changes_and_cancellation": {
+        "replace_file": "Residents can replace an attachment on their own request before it reaches Approved, Ready for Pickup, or Completed. Use the View & Replace Files action in the transaction details.",
+        "cancel": "Residents can cancel only their own Pending requests. Cancellation deletes the request.",
+        "after_approval": "Files cannot be replaced after approval, including when the request is Ready for Pickup or Completed."
+      },
+      "payment_and_issuance": {
+        "online_payment": "No online payment workflow or payment endpoint was found in the inspected website/backend files.",
+        "digital_issuance_or_delivery": "No digital certificate issuance or delivery workflow was found in the inspected files.",
+        "pickup": "The form collects a preferred pickup date and time. Do not describe this as a confirmed appointment or guarantee that the document will be ready at that time; wait for the request status/notification and follow the barangay's instructions.",
+        "fee": "Use the resident's own barangay profile fee record when available. The ServiceRequest entity itself does not store a fee or payment status. Do not claim that payment was made online."
+      },
+      "api_endpoints": [
+        {
+          "method": "POST",
+          "path": "/api/services/request",
+          "purpose": "Submit a multipart service request with serviceType, purpose, pickupDate, pickupTime, and files."
+        },
+        {
+          "method": "GET",
+          "path": "/api/services/transactions",
+          "purpose": "List the authenticated resident's requests."
+        },
+        {
+          "method": "GET",
+          "path": "/api/services/files/{fileId}",
+          "purpose": "Preview/download an authorized request attachment."
+        },
+        {
+          "method": "POST",
+          "path": "/api/services/transactions/replace-file",
+          "purpose": "Replace one attachment before approval."
+        },
+        {
+          "method": "DELETE",
+          "path": "/api/services/transactions/{id}",
+          "purpose": "Cancel an owned Pending request."
+        }
+      ],
+      "service_requirements_from_website": {
+        "Barangay Clearance": [
+          "Valid Government-issued ID",
+          "Proof of residency",
+          "Community Tax Certificate (Cedula)"
+        ],
+        "Certificate of Residency": [
+          "Valid Government-issued ID",
+          "Proof of Address / Residency"
+        ],
+        "Certificate of Indigency": [
+          "Valid Government-issued ID",
+          "Proof of Residency",
+          "Declared Monthly Family Income"
+        ],
+        "First Time Job Seeker Certificate": [
+          "Valid Government-issued ID or Student ID",
+          "Proof of Residency",
+          "Accomplished First-Time Job Seeker Oath Form (RA 11261)"
+        ],
+        "Barangay ID Application": [
+          "Valid Government-issued ID or Student ID",
+          "Proof of Residency (Utility Bill)",
+          "1x1 or 2x2 ID Photo",
+          "Emergency Contact Details"
+        ],
+        "Certificate of Good Moral Character": [
+          "Valid Government-issued ID",
+          "Barangay Clearance",
+          "Purpose of Request"
+        ],
+        "Certificate of Single Status / Co-habitation": [
+          "Valid Government-issued ID of both parties",
+          "Joint Affidavit of Two Disinterested Persons",
+          "Proof of Residency"
+        ],
+        "Barangay Guardianship Certificate": [
+          "Valid Government-issued ID of Guardian",
+          "Child's PSA Birth Certificate",
+          "Barangay Endorsement / Affidavit"
+        ],
+        "Business Permit Clearance": [
+          "Valid Government-issued ID",
+          "Business Details (Name, Address, Nature)",
+          "Existing Mayor's Permit or Application"
+        ],
+        "Business Permit Endorsement": [
+          "Valid Government-issued ID",
+          "Business Details",
+          "Proof of Location (Contract of Lease or TCT)",
+          "Locational / Sanitary Clearance"
+        ]
+      }
+    }
+  }
+}

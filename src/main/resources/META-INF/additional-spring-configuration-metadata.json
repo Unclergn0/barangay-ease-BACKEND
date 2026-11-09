@@ -1,0 +1,74 @@
+{
+  "properties": [
+    {
+      "name": "app.cors.allowed-origins",
+      "type": "java.lang.String",
+      "description": "Allowed frontend origins for CORS."
+    },
+    {
+      "name": "app.jwt.secret",
+      "type": "java.lang.String",
+      "description": "Secret key used for JWT signing. Must be at least 32 characters."
+    },
+    {
+      "name": "app.jwt.expiration",
+      "type": "java.lang.Long",
+      "description": "JWT expiration time in seconds."
+    },
+    {
+      "name": "app.gemini.url",
+      "type": "java.lang.String",
+      "description": "Gemini API base URL."
+    },
+    {
+      "name": "app.gemini.api-key",
+      "type": "java.lang.String",
+      "description": "Gemini API key loaded from the GEMINI_API_KEY environment variable."
+    },
+    {
+      "name": "app.gemini.model",
+      "type": "java.lang.String",
+      "description": "Gemini AI model used by BarangayEase."
+    },
+    {
+      "name": "app.groq.url",
+      "type": "java.lang.String",
+      "description": "Groq chat completions URL."
+    },
+    {
+      "name": "app.groq.api-key",
+      "type": "java.lang.String",
+      "description": "Groq API key loaded from the GROQ_API_KEY environment variable."
+    },
+    {
+      "name": "app.groq.model",
+      "type": "java.lang.String",
+      "description": "Groq model used when Gemini is unavailable."
+    },
+    {
+      "name": "app.ai.cooldown-seconds",
+      "type": "java.lang.Long",
+      "description": "Seconds an AI provider is skipped after an HTTP 429."
+    },
+    {
+      "name": "app.ai.chat-requests-per-minute",
+      "type": "java.lang.Integer",
+      "description": "Max chat messages per resident per minute."
+    },
+    {
+      "name": "app.ai.classify-requests-per-minute",
+      "type": "java.lang.Integer",
+      "description": "Max complaint classifications per resident per minute."
+    },
+    {
+      "name": "app.gemini.connect-timeout-seconds",
+      "type": "java.lang.Long",
+      "description": "AI connection timeout in seconds."
+    },
+    {
+      "name": "app.gemini.request-timeout-seconds",
+      "type": "java.lang.Long",
+      "description": "AI request timeout in seconds."
+    }
+  ]
+}

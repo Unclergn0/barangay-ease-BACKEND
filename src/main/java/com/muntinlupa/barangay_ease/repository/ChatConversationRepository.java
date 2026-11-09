@@ -1,0 +1,15 @@
+package com.muntinlupa.barangay_ease.repository;
+
+import com.muntinlupa.barangay_ease.model.ChatConversation;
+import org.springframework.data.jpa.repository.JpaRepository;
+
+import java.util.Optional;
+
+public interface ChatConversationRepository
+        extends JpaRepository<ChatConversation, Long> {
+
+    Optional<ChatConversation> findByOwnerUserIdAndOwnerRole(
+        Integer ownerUserId,
+        String ownerRole
+    );
+}
