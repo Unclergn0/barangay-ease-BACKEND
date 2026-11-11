@@ -19,6 +19,7 @@ import org.springframework.web.cors.UrlBasedCorsConfigurationSource;
 
 import java.util.Arrays;
 import java.util.List;
+import java.util.ArrayList;
 
 @Configuration
 public class SecurityConfig {
@@ -28,16 +29,23 @@ public class SecurityConfig {
 
     public SecurityConfig(
             JwtAuthenticationFilter jwtAuthenticationFilter,
-            @Value("${app.cors.allowed-origins:http://localhost:5500,http://127.0.0.1:5500}")
+            @Value("${app.cors.allowed-origins:http://localhost:5500,http://127.0.0.1:5500,https://barangayease.netlify.app}")
             String origins
     ) {
         this.jwtAuthenticationFilter = jwtAuthenticationFilter;
 
-        this.allowedOrigins = Arrays.stream(origins.split(","))
+        List<String> mutableOrigins = new ArrayList<>(Arrays.stream(origins.split(","))
                 .map(String::trim)
                 .filter(origin -> !origin.isBlank())
                 .distinct()
-                .toList();
+                .toList());
+
+        // Siguraduhing laging kasama ang Netlify frontend domain
+        if (!mutableOrigins.contains("https://barangayease.netlify.app")) {
+            mutableOrigins.add("https://barangayease.netlify.app");
+        }
+
+        this.allowedOrigins = mutableOrigins;
 
         if (this.allowedOrigins.isEmpty()) {
             throw new IllegalArgumentException(
@@ -184,12 +192,6 @@ public class SecurityConfig {
         return http.build();
     }
 
-
-    /**
-     * JwtAuthenticationFilter is inserted into Spring Security above. Disable
-     * Spring Boot's automatic servlet-container registration to prevent the
-     * same filter from running outside the security chain.
-     */
     @Bean
     public FilterRegistrationBean<JwtAuthenticationFilter> jwtFilterServletRegistration(
             JwtAuthenticationFilter filter) {
@@ -228,7 +230,6 @@ public class SecurityConfig {
                 "Authorization"
         ));
 
-        // JWT is sent through Authorization header.
         configuration.setAllowCredentials(false);
 
         configuration.setMaxAge(3600L);
