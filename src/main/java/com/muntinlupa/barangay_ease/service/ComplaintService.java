@@ -20,7 +20,8 @@ import java.util.*;
 @Service
 public class ComplaintService {
 
-    private static final Logger log = LoggerFactory.getLogger(ComplaintService.class);
+    private static final Logger log =
+            LoggerFactory.getLogger(ComplaintService.class);
 
     private final ComplaintRepository complaints;
     private final ResidentRepository residents;
@@ -87,35 +88,41 @@ public class ComplaintService {
             String classification,
             List<MultipartFile> uploads) throws IOException {
 
-        // Validate resident ID.
+        // VALIDATE RESIDENT
         if (residentId == null) {
             throw new IllegalArgumentException(
                     "Resident account is required.");
         }
 
-        // Validate complaint details.
+        // VALIDATE DETAILS
         if (details == null || details.isBlank()) {
             throw new IllegalArgumentException(
                     "Complaint details are required.");
         }
+
         if (details.trim().length() > 10000) {
-            throw new IllegalArgumentException("Complaint details must be 10,000 characters or fewer.");
-        }
-        if (title != null && title.trim().length() > 150) {
-            throw new IllegalArgumentException("Complaint title must be 150 characters or fewer.");
-        }
-        if (uploads != null && uploads.size() > 5) {
-            throw new IllegalArgumentException("You can upload a maximum of 5 complaint files.");
+            throw new IllegalArgumentException(
+                    "Complaint details must be 10,000 characters or fewer.");
         }
 
-        // Find resident.
+        if (title != null && title.trim().length() > 150) {
+            throw new IllegalArgumentException(
+                    "Complaint title must be 150 characters or fewer.");
+        }
+
+        if (uploads != null && uploads.size() > 5) {
+            throw new IllegalArgumentException(
+                    "You can upload a maximum of 5 complaint files.");
+        }
+
+        // FIND RESIDENT
         Resident resident = residents.findById(
                 Math.toIntExact(residentId)
         ).orElseThrow(() ->
                 new IllegalArgumentException(
                         "Resident account not found."));
 
-        // Get barangay from authenticated resident record.
+        // GET RESIDENT BARANGAY
         Integer barangayId = resident.getBarangayId();
 
         if (barangayId == null) {
@@ -123,30 +130,80 @@ public class ComplaintService {
                     "Your barangay is not configured. Please contact the administrator.");
         }
 
-        // The backend is the authority for classification. Never trust the
-        // priority supplied by the browser; clients may alter multipart fields.
-        // Always inspect BOTH title and description. Critical keywords are
-        // frequently entered in the title while the details are very short.
-        String classificationText = "Title: "
+        // PREPARE CLASSIFICATION TEXT
+        String classificationText =
+                "Title: "
                 + (title == null ? "" : title.trim())
-                + "\nDescription: " + details.trim();
+                + "\nDescription: "
+                + details.trim();
 
-        Map<String, Object> assessment = classifier.classify(title, details);
-        Object assessedPriority = assessment.get("priority");
-        String priority = normalizePriority(assessedPriority == null ? null : assessedPriority.toString());
-        if (priority == null) priority = "mild";
+        // =================================================
+        // STEP 1: EMERGENCY KEYWORD SCREENING FIRST
+        // =================================================
 
-        // Independent emergency screen remains a hard safety backstop.
         EmergencyKeywordScreen.Result screen =
                 EmergencyKeywordScreen.screen(classificationText);
-        if (screen.level() == EmergencyKeywordScreen.Level.CRITICAL) {
+
+        String priority;
+        String safetyMessage = null;
+
+        Map<String, Object> assessment =
+                Collections.emptyMap();
+
+        // CRITICAL EMERGENCY
+        if (screen.critical()) {
+
             priority = "critical";
-        } else if (screen.level() == EmergencyKeywordScreen.Level.IMMEDIATE
-                && "mild".equals(priority)) {
-            priority = "immediate";
+
+            safetyMessage =
+                    SafetyMessages.forScreen(screen);
+
+            log.warn(
+                    "CRITICAL incident detected. Resident ID: {}, Incident: {}",
+                    residentId,
+                    screen.incidentType()
+            );
+
         }
 
-        // Create complaint entity.
+        // IMMEDIATE EMERGENCY
+        else if (screen.immediate()) {
+
+            priority = "immediate";
+
+            safetyMessage =
+                    SafetyMessages.forScreen(screen);
+
+            log.warn(
+                    "IMMEDIATE incident detected. Resident ID: {}, Incident: {}",
+                    residentId,
+                    screen.incidentType()
+            );
+
+        }
+
+        // NORMAL COMPLAINT: USE AI CLASSIFIER
+        else {
+
+            assessment = classifier.classify(
+                    title,
+                    details
+            );
+
+            Object assessedPriority =
+                    assessment.get("priority");
+
+            priority = normalizePriority(
+                    assessedPriority == null
+                            ? null
+                            : assessedPriority.toString()
+            );
+        }
+
+        // =================================================
+        // STEP 2: CREATE COMPLAINT
+        // =================================================
+
         Complaint complaint = new Complaint();
 
         complaint.setResident(resident);
@@ -162,29 +219,87 @@ public class ComplaintService {
 
         complaint.setDescription(details.trim());
         complaint.setEvidence("");
+
         complaint.setClassificationType(priority);
+
+        // =================================================
+        // STEP 3: CRITICAL COMPLAINT
+        // AI COMPLAINTS QUEUE
+        // =================================================
 
         if ("critical".equals(priority)) {
 
             complaint.setStatus("Pending AI Review");
-            Object message = assessment.get("message");
-            complaint.setAiMessage(message instanceof String text && !text.isBlank()
-                    ? text : SafetyMessages.CRITICAL);
             complaint.setAiReviewStatus("PENDING");
 
-        } else {
+            if (safetyMessage != null) {
+
+                complaint.setAiMessage(safetyMessage);
+
+            } else {
+
+                Object message = assessment.get("message");
+
+                complaint.setAiMessage(
+                        message instanceof String text
+                                && !text.isBlank()
+                                ? text
+                                : "This complaint has been classified as critical and requires urgent review by authorized barangay personnel."
+                );
+            }
+
+        }
+
+        // =================================================
+        // STEP 4: IMMEDIATE COMPLAINT
+        // NORMAL ONLINE COMPLAINT FLOW
+        // =================================================
+
+        else if ("immediate".equals(priority)) {
 
             complaint.setStatus("Pending");
             complaint.setAiReviewStatus("NOT_REQUIRED");
+
+            complaint.setAiMessage(
+                    safetyMessage != null
+                            ? safetyMessage
+                            : "This complaint requires prompt online barangay assistance. Contact 911 if anyone is in immediate danger."
+            );
+
         }
 
-        // Save complaint and attachments.
-        // If attachment saving fails, the database transaction rolls back.
-        Complaint savedComplaint = complaints.save(complaint);
+        // =================================================
+        // STEP 5: NORMAL / MILD COMPLAINT
+        // =================================================
+
+        else {
+
+            complaint.setStatus("Pending");
+            complaint.setAiReviewStatus("NOT_REQUIRED");
+
+            Object message = assessment.get("message");
+
+            if (message instanceof String text
+                    && !text.isBlank()) {
+
+                complaint.setAiMessage(text);
+
+            }
+        }
+
+        // =================================================
+        // STEP 6: SAVE COMPLAINT AND ATTACHMENTS
+        // =================================================
+
+        Complaint savedComplaint =
+                complaints.save(complaint);
 
         saveFiles(savedComplaint, uploads);
 
-        // Notification failure must not prevent complaint submission.
+        // =================================================
+        // STEP 7: SEND NOTIFICATION
+        // =================================================
+
         sendComplaintNotification(savedComplaint);
 
         return savedComplaint;
@@ -213,7 +328,6 @@ public class ComplaintService {
             return value;
         }
 
-        // Unknown priority defaults to mild.
         return "mild";
     }
 
@@ -231,7 +345,8 @@ public class ComplaintService {
                 ? ""
                 : resident.getLastName().trim();
 
-        String fullName = (firstName + " " + lastName).trim();
+        String fullName =
+                (firstName + " " + lastName).trim();
 
         return fullName.isBlank()
                 ? "Resident"
@@ -266,6 +381,11 @@ public class ComplaintService {
                     "Complaint details are required.");
         }
 
+        if (uploads != null && uploads.size() > 5) {
+            throw new IllegalArgumentException(
+                    "You can upload a maximum of 5 complaint files.");
+        }
+
         Resident resident = residents.findById(
                 Math.toIntExact(residentId)
         ).orElseThrow(() ->
@@ -279,6 +399,43 @@ public class ComplaintService {
                     "Resident barangay is not configured.");
         }
 
+        String classificationText =
+                "Title: " + title.trim()
+                + "\nDescription: " + details.trim();
+
+        EmergencyKeywordScreen.Result screen =
+                EmergencyKeywordScreen.screen(classificationText);
+
+        String priority;
+        String response;
+
+        if (screen.critical()) {
+
+            priority = "critical";
+
+            response =
+                    SafetyMessages.forScreen(screen);
+
+        } else if (screen.immediate()) {
+
+            priority = "immediate";
+
+            response =
+                    SafetyMessages.forScreen(screen);
+
+        } else {
+
+            // Keep backward compatibility for callers
+            // that explicitly use this method for critical reports.
+
+            priority = "critical";
+
+            response =
+                    aiMessage == null || aiMessage.isBlank()
+                            ? "This complaint requires urgent review by authorized barangay personnel."
+                            : aiMessage.trim();
+        }
+
         Complaint complaint = new Complaint();
 
         complaint.setResident(resident);
@@ -290,15 +447,20 @@ public class ComplaintService {
         complaint.setTitle(title.trim());
         complaint.setDescription(details.trim());
         complaint.setEvidence("");
-        complaint.setClassificationType("critical");
 
-        complaint.setAiMessage(
-                aiMessage == null || aiMessage.isBlank()
-                        ? SafetyMessages.CRITICAL
-                        : aiMessage.trim());
+        complaint.setClassificationType(priority);
+        complaint.setAiMessage(response);
 
-        complaint.setAiReviewStatus("PENDING");
-        complaint.setStatus("Pending AI Review");
+        if ("critical".equals(priority)) {
+
+            complaint.setAiReviewStatus("PENDING");
+            complaint.setStatus("Pending AI Review");
+
+        } else {
+
+            complaint.setAiReviewStatus("NOT_REQUIRED");
+            complaint.setStatus("Pending");
+        }
 
         Complaint saved = complaints.save(complaint);
 
@@ -321,9 +483,8 @@ public class ComplaintService {
             return;
         }
 
-        // Track uploaded file paths so they can be deleted
-        // if a later attachment fails to save.
-        List<String> uploadedPaths = new ArrayList<>();
+        List<String> uploadedPaths =
+                new ArrayList<>();
 
         try {
 
@@ -339,7 +500,8 @@ public class ComplaintService {
 
                 uploadedPaths.add(savedPath);
 
-                ComplaintFile attachment = new ComplaintFile();
+                ComplaintFile attachment =
+                        new ComplaintFile();
 
                 attachment.setComplaintId(
                         complaint.getComplaintId());
@@ -356,18 +518,16 @@ public class ComplaintService {
                                 ? "application/octet-stream"
                                 : file.getContentType());
 
-                attachment.setFileSize(file.getSize());
+                attachment.setFileSize(
+                        file.getSize());
 
                 files.save(attachment);
             }
 
         } catch (IOException | RuntimeException error) {
 
-            // Remove already uploaded physical files.
             deleteUploadedFiles(uploadedPaths);
 
-            // Propagate the error.
-            // The transaction will roll back database changes.
             throw error;
         }
     }
@@ -376,7 +536,8 @@ public class ComplaintService {
     // CLEANUP UPLOADED FILES
     // =====================================================
 
-    private void deleteUploadedFiles(List<String> paths) {
+    private void deleteUploadedFiles(
+            List<String> paths) {
 
         if (paths == null || paths.isEmpty()) {
             return;
@@ -394,7 +555,11 @@ public class ComplaintService {
 
             } catch (Exception error) {
 
-                log.warn("Unable to clean up uploaded complaint file: {}", path, error);
+                log.warn(
+                        "Unable to clean up uploaded complaint file: {}",
+                        path,
+                        error
+                );
             }
         }
     }
@@ -403,15 +568,21 @@ public class ComplaintService {
     // NOTIFICATIONS
     // =====================================================
 
-    private void sendComplaintNotification(Complaint complaint) {
+    private void sendComplaintNotification(
+            Complaint complaint) {
 
         try {
 
-            notifications.complaintReceived(complaint);
+            notifications.complaintReceived(
+                    complaint);
 
         } catch (Exception error) {
 
-            log.warn("Notification failed for complaint ID {}.", complaint.getComplaintId(), error);
+            log.warn(
+                    "Notification failed for complaint ID {}.",
+                    complaint.getComplaintId(),
+                    error
+            );
         }
     }
 
@@ -433,9 +604,13 @@ public class ComplaintService {
                         new NoSuchElementException(
                                 "Complaint not found."));
 
-        if (adminBarangayId == null || complaint.getBarangayId() == null
-                || !adminBarangayId.equals(complaint.getBarangayId())) {
-            throw new SecurityException("You cannot review complaints outside your assigned barangay.");
+        if (adminBarangayId == null
+                || complaint.getBarangayId() == null
+                || !adminBarangayId.equals(
+                        complaint.getBarangayId())) {
+
+            throw new SecurityException(
+                    "You cannot review complaints outside your assigned barangay.");
         }
 
         if (!"critical".equalsIgnoreCase(
@@ -464,14 +639,20 @@ public class ComplaintService {
         } else if ("UPDATE".equals(act)) {
 
             if (classification == null
-                    || !Set.of("mild", "immediate", "critical")
-                            .contains(classification.trim().toLowerCase(Locale.ROOT))) {
+                    || !Set.of(
+                            "mild",
+                            "immediate",
+                            "critical"
+                    ).contains(
+                            classification.trim().toLowerCase(
+                                    Locale.ROOT))) {
 
                 throw new IllegalArgumentException(
                         "Classification must be mild, immediate, or critical.");
             }
 
-            String type = normalizePriority(classification);
+            String type =
+                    normalizePriority(classification);
 
             complaint.setClassificationType(type);
             complaint.setAiReviewStatus("UPDATED");
@@ -489,17 +670,21 @@ public class ComplaintService {
                         ? Math.toIntExact(adminId)
                         : null);
 
-        complaint.setReviewedAt(LocalDateTime.now());
+        complaint.setReviewedAt(
+                LocalDateTime.now());
 
-        Complaint saved = complaints.save(complaint);
+        Complaint saved =
+                complaints.save(complaint);
 
         try {
 
             if ("UPDATE".equals(act)) {
 
-                notifications.complaintReclassified(saved);
+                notifications.complaintReclassified(
+                        saved);
 
-            } else if ("ACCEPT".equals(act) || "CANCEL".equals(act)) {
+            } else if ("ACCEPT".equals(act)
+                    || "CANCEL".equals(act)) {
 
                 notifications.complaintStatusChanged(
                         saved,
@@ -508,7 +693,11 @@ public class ComplaintService {
 
         } catch (Exception error) {
 
-            log.warn("AI review notification failed for complaint ID {}.", saved.getComplaintId(), error);
+            log.warn(
+                    "AI review notification failed for complaint ID {}.",
+                    saved.getComplaintId(),
+                    error
+            );
         }
 
         return saved;
@@ -539,18 +728,29 @@ public class ComplaintService {
                         new NoSuchElementException(
                                 "Complaint not found."));
 
-        if (adminBarangayId == null || complaint.getBarangayId() == null
-                || !adminBarangayId.equals(complaint.getBarangayId())) {
-            throw new SecurityException("You cannot update complaints outside your assigned barangay.");
+        if (adminBarangayId == null
+                || complaint.getBarangayId() == null
+                || !adminBarangayId.equals(
+                        complaint.getBarangayId())) {
+
+            throw new SecurityException(
+                    "You cannot update complaints outside your assigned barangay.");
         }
 
         String nextStatus = status.trim();
-        if (!isAllowedComplaintTransition(complaint.getStatus(), nextStatus)) {
-            throw new IllegalArgumentException("Invalid complaint status transition.");
+
+        if (!isAllowedComplaintTransition(
+                complaint.getStatus(),
+                nextStatus)) {
+
+            throw new IllegalArgumentException(
+                    "Invalid complaint status transition.");
         }
+
         complaint.setStatus(nextStatus);
 
-        Complaint saved = complaints.save(complaint);
+        Complaint saved =
+                complaints.save(complaint);
 
         try {
 
@@ -560,22 +760,71 @@ public class ComplaintService {
 
         } catch (Exception error) {
 
-            log.warn("Status notification failed for complaint ID {}.", saved.getComplaintId(), error);
+            log.warn(
+                    "Status notification failed for complaint ID {}.",
+                    saved.getComplaintId(),
+                    error
+            );
         }
 
         return saved;
     }
-    private boolean isAllowedComplaintTransition(String current, String target) {
-        String from = current == null ? "pending" : current.trim().toLowerCase(Locale.ROOT);
-        String to = target == null ? "" : target.trim().toLowerCase(Locale.ROOT);
-        if (from.equals(to)) return true;
+
+    // =====================================================
+    // ALLOWED STATUS TRANSITIONS
+    // =====================================================
+
+    private boolean isAllowedComplaintTransition(
+            String current,
+            String target) {
+
+        String from = current == null
+                ? "pending"
+                : current.trim().toLowerCase(Locale.ROOT);
+
+        String to = target == null
+                ? ""
+                : target.trim().toLowerCase(Locale.ROOT);
+
+        if (from.equals(to)) {
+            return true;
+        }
+
         return switch (from) {
-            case "pending" -> Set.of("under review", "in progress", "resolved").contains(to);
-            case "pending ai review" -> "under review".equals(to);
-            case "under review" -> Set.of("in progress", "resolved", "closed").contains(to);
-            case "in progress" -> Set.of("under review", "resolved", "closed").contains(to);
-            case "resolved" -> Set.of("closed", "under review").contains(to);
-            case "closed" -> "under review".equals(to);
+
+            case "pending" ->
+                    Set.of(
+                            "under review",
+                            "in progress",
+                            "resolved"
+                    ).contains(to);
+
+            case "pending ai review" ->
+                    "under review".equals(to);
+
+            case "under review" ->
+                    Set.of(
+                            "in progress",
+                            "resolved",
+                            "closed"
+                    ).contains(to);
+
+            case "in progress" ->
+                    Set.of(
+                            "under review",
+                            "resolved",
+                            "closed"
+                    ).contains(to);
+
+            case "resolved" ->
+                    Set.of(
+                            "closed",
+                            "under review"
+                    ).contains(to);
+
+            case "closed" ->
+                    "under review".equals(to);
+
             default -> false;
         };
     }
