@@ -33,4 +33,20 @@ class EmergencyKeywordScreenTest {
         assertEquals(EmergencyKeywordScreen.Level.CRITICAL, result.level());
         assertTrue(result.flagged());
     }
+    @Test
+    void rapeInComplaintTitleIsCritical() {
+        EmergencyKeywordScreen.Result result = EmergencyKeywordScreen.screen(
+                "Title: rape\nDescription: please help me");
+
+        assertEquals(EmergencyKeywordScreen.Level.CRITICAL, result.level());
+    }
+
+    @Test
+    void filipinoRapeKeywordIsCritical() {
+        EmergencyKeywordScreen.Result result = EmergencyKeywordScreen.screen(
+                "Panggagahasa ang nangyari sa akin.");
+
+        assertEquals(EmergencyKeywordScreen.Level.CRITICAL, result.level());
+    }
+
 }

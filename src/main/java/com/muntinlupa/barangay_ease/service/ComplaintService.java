@@ -125,13 +125,20 @@ public class ComplaintService {
 
         // The backend is the authority for classification. Never trust the
         // priority supplied by the browser; clients may alter multipart fields.
-        Map<String, Object> assessment = classifier.classify(details);
+        // Always inspect BOTH title and description. Critical keywords are
+        // frequently entered in the title while the details are very short.
+        String classificationText = "Title: "
+                + (title == null ? "" : title.trim())
+                + "\nDescription: " + details.trim();
+
+        Map<String, Object> assessment = classifier.classify(title, details);
         Object assessedPriority = assessment.get("priority");
         String priority = normalizePriority(assessedPriority == null ? null : assessedPriority.toString());
         if (priority == null) priority = "mild";
 
         // Independent emergency screen remains a hard safety backstop.
-        EmergencyKeywordScreen.Result screen = EmergencyKeywordScreen.screen(details);
+        EmergencyKeywordScreen.Result screen =
+                EmergencyKeywordScreen.screen(classificationText);
         if (screen.level() == EmergencyKeywordScreen.Level.CRITICAL) {
             priority = "critical";
         } else if (screen.level() == EmergencyKeywordScreen.Level.IMMEDIATE

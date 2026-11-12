@@ -30,6 +30,30 @@ public class ComplaintClassifierService {
         this.objectMapper = objectMapper;
     }
 
+    /**
+     * Classify both the resident-provided title and description.
+     * The title is important because residents often put the critical
+     * incident keyword in the title and only a short message in the details.
+     */
+    public Map<String, Object> classify(String title, String description) {
+
+        StringBuilder combined = new StringBuilder();
+
+        if (title != null && !title.isBlank()) {
+            combined.append("Title: ").append(title.trim());
+        }
+
+        if (description != null && !description.isBlank()) {
+            if (combined.length() > 0) {
+                combined.append("\n");
+            }
+            combined.append("Description: ").append(description.trim());
+        }
+
+        return classify(combined.toString());
+    }
+
+    /** Backward-compatible entry point used by the AI classify endpoint. */
     public Map<String, Object> classify(String text) {
 
         String complaint = text == null ? "" : text.trim();
