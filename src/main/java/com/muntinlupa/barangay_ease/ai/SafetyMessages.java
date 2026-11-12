@@ -7,6 +7,19 @@ public final class SafetyMessages {
     }
 
     // =====================================================
+    // GENERIC COMPATIBILITY MESSAGES
+    // =====================================================
+
+    public static final String CRITICAL =
+            "This complaint has been classified as critical and requires urgent human review. "
+          + "If anyone is in immediate danger, call 911 or emergency responders now. "
+          + "Do not wait for an online response.";
+
+    public static final String IMMEDIATE =
+            "This complaint requires prompt attention from barangay personnel. "
+          + "If anyone is in immediate danger, call 911 or emergency responders now.";
+
+    // =====================================================
     // CRITICAL INCIDENT RESPONSES
     // =====================================================
 

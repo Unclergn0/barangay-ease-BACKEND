@@ -32,8 +32,6 @@ public class ComplaintClassifierService {
 
     /**
      * Classify both the resident-provided title and description.
-     * The title is important because residents often put the critical
-     * incident keyword in the title and only a short message in the details.
      */
     public Map<String, Object> classify(String title, String description) {
 
@@ -53,7 +51,9 @@ public class ComplaintClassifierService {
         return classify(combined.toString());
     }
 
-    /** Backward-compatible entry point used by the AI classify endpoint. */
+    /**
+     * Backward-compatible entry point.
+     */
     public Map<String, Object> classify(String text) {
 
         String complaint = text == null ? "" : text.trim();
@@ -61,7 +61,6 @@ public class ComplaintClassifierService {
         Map<String, Object> result = new LinkedHashMap<>();
 
         if (complaint.isBlank()) {
-
             result.put("topic", "Other");
             result.put("category", "mild");
             result.put("priority", "mild");
@@ -70,12 +69,11 @@ public class ComplaintClassifierService {
             result.put("route", "BARANGAY_PERSONNEL");
             result.put("aiUsed", false);
             result.put("aiFallback", false);
-
             return result;
         }
 
         // Independent emergency screening.
-        // This always runs even if the AI provider is unavailable.
+        // This works even when the AI provider is unavailable.
         EmergencyKeywordScreen.Result screen =
                 EmergencyKeywordScreen.screen(complaint);
 
@@ -87,26 +85,12 @@ public class ComplaintClassifierService {
         result.put("priority", safetyPriority);
         result.put("reason", "Pending barangay personnel assessment.");
         result.put("route", getRoute(safetyPriority));
+        result.put("message",
+                getResidentMessage(screen, safetyPriority, "Other"));
         result.put("aiUsed", false);
-
-        if ("critical".equals(safetyPriority)) {
-
-            result.put("message", SafetyMessages.CRITICAL);
-
-        } else if ("immediate".equals(safetyPriority)) {
-
-            result.put("message", SafetyMessages.IMMEDIATE);
-
-        } else {
-
-            result.put(
-                    "message",
-                    "Your complaint will be forwarded to barangay personnel for normal processing and appropriate action.");
-        }
 
         // AI is optional. The complaint can still be processed without it.
         if (!llmGateway.isConfigured()) {
-
             result.put("aiFallback", true);
             return result;
         }
@@ -170,6 +154,8 @@ public class ComplaintClassifierService {
                     - If the report is unclear, use Other and mild unless the text
                       indicates an urgent safety concern.
                     - Do not treat a normal disagreement as a critical emergency.
+                    - Ordinary noise or videoke complaints should normally be mild
+                      unless the report describes a separate safety threat.
                     - Do not tell someone in immediate danger to wait for an AI response.
 
                     OUTPUT:
@@ -193,9 +179,7 @@ public class ComplaintClassifierService {
             JsonNode json = parseJson(aiResponse);
 
             if (json == null) {
-
                 log.warn("Complaint AI returned an invalid JSON response.");
-
                 result.put("aiFallback", true);
                 return result;
             }
@@ -208,76 +192,95 @@ public class ComplaintClassifierService {
             String staffNote = readText(json, "staffNote");
 
             if (topic == null || aiPriority == null) {
-
                 log.warn("Complaint AI response is missing required fields.");
-
                 result.put("aiFallback", true);
                 return result;
             }
 
             // AI may escalate the safety-screen result.
-            // AI must never downgrade it.
+            // AI must never downgrade the independent safety result.
             String finalPriority = higherPriority(
                     safetyPriority,
-                    aiPriority);
+                    aiPriority
+            );
 
-            // Ordinary noise/videoke complaints must not become CRITICAL merely
-            // because they happened late at night. The independent emergency
-            // screen still takes precedence whenever it detects a safety risk.
-            boolean ordinaryNoise = isOrdinaryNoiseConcern(complaint)
-                    && "mild".equals(safetyPriority);
-            if (ordinaryNoise) {
-                finalPriority = "mild";
-                topic = "Noise Complaint";
-            }
+            String normalizedTopic = normalizeTopic(topic);
 
-            result.put("topic", normalizeTopic(topic));
+            result.put("topic", normalizedTopic);
             result.put("category", finalPriority);
             result.put("priority", finalPriority);
-            result.put("reason",
+
+            result.put(
+                    "reason",
                     reason == null
                             ? "Complaint classified for preliminary review."
-                            : reason);
-            result.put("staffNote",
+                            : reason
+            );
+
+            result.put(
+                    "staffNote",
                     staffNote == null
                             ? "Please review the complaint details."
-                            : staffNote);
+                            : staffNote
+            );
 
             result.put("route", getRoute(finalPriority));
+            result.put("message",
+                    getResidentMessage(screen, finalPriority, normalizedTopic));
+
             result.put("aiUsed", true);
             result.put("aiFallback", false);
-
-            // Preserve immediate safety guidance.
-            // AI investigation notes are separate from the resident message.
-            if ("critical".equals(finalPriority)) {
-
-                result.put("message", SafetyMessages.CRITICAL);
-
-            } else if ("immediate".equals(finalPriority)) {
-
-                result.put("message", SafetyMessages.IMMEDIATE);
-
-            } else {
-
-                result.put(
-                        "message",
-                        "Your complaint has been classified as "
-                                + normalizeTopic(topic)
-                                + " and will be forwarded to barangay personnel for appropriate action.");
-            }
 
         } catch (Exception error) {
 
             log.error(
-                    "Complaint AI classification failed. "
-                            + "Using independent safety screening. Reason: {}",
-                    error.getMessage());
+                    "Complaint AI classification failed. Using independent safety screening. Reason: {}",
+                    error.getMessage()
+            );
 
+            // Keep the independently screened priority and message.
             result.put("aiUsed", false);
             result.put("aiFallback", true);
         }
 
         return result;
+    }
+
+    // =====================================================
+    // RESIDENT MESSAGE
+    // =====================================================
+
+    private String getResidentMessage(
+            EmergencyKeywordScreen.Result screen,
+            String priority,
+            String topic) {
+
+        // Use the specific emergency message when keyword screening
+        // actually detected an incident at the matching priority.
+        if (screen != null && screen.flagged()) {
+
+            if ("critical".equals(priority) && screen.critical()) {
+                return SafetyMessages.forScreen(screen);
+            }
+
+            if ("immediate".equals(priority) && screen.immediate()) {
+                return SafetyMessages.forScreen(screen);
+            }
+        }
+
+        // Generic messages for AI escalation without a matching
+        // emergency keyword-screen result.
+        if ("critical".equals(priority)) {
+            return "Your complaint has been classified as critical and requires urgent human review. If anyone is in immediate danger, contact 911 or emergency responders now. Do not wait for an online response.";
+        }
+
+        if ("immediate".equals(priority)) {
+            return "Your complaint requires prompt attention from barangay personnel. If anyone is in immediate danger, contact 911 or emergency responders now.";
+        }
+
+        return "Your complaint has been classified as "
+                + topic
+                + " and will be forwarded to barangay personnel for appropriate action.";
     }
 
     // =====================================================
@@ -292,9 +295,7 @@ public class ComplaintClassifierService {
 
         String cleaned = response.trim();
 
-        // Remove optional Markdown code fences.
         if (cleaned.startsWith("```")) {
-
             cleaned = cleaned.replaceFirst(
                     "^```(?:json)?\\s*",
                     "");
@@ -304,7 +305,6 @@ public class ComplaintClassifierService {
                     "");
         }
 
-        // Extract JSON if the provider added text before or after it.
         int firstBrace = cleaned.indexOf('{');
         int lastBrace = cleaned.lastIndexOf('}');
 
@@ -314,7 +314,8 @@ public class ComplaintClassifierService {
 
         String jsonText = cleaned.substring(
                 firstBrace,
-                lastBrace + 1);
+                lastBrace + 1
+        );
 
         JsonNode node = objectMapper.readTree(jsonText);
 
@@ -385,7 +386,6 @@ public class ComplaintClassifierService {
         );
 
         for (String allowed : allowedTopics) {
-
             if (allowed.equalsIgnoreCase(topic)) {
                 return allowed;
             }
@@ -401,9 +401,12 @@ public class ComplaintClassifierService {
     private String getSafetyPriority(
             EmergencyKeywordScreen.Result screen) {
 
+        if (screen == null) {
+            return "mild";
+        }
+
         if (screen.level() == EmergencyKeywordScreen.Level.CRITICAL
                 || screen.selfHarm()) {
-
             return "critical";
         }
 
@@ -441,24 +444,6 @@ public class ComplaintClassifierService {
         }
 
         return 1;
-    }
-
-    private boolean isOrdinaryNoiseConcern(String complaint) {
-        if (complaint == null || complaint.isBlank()) return false;
-        String text = complaint.toLowerCase(Locale.ROOT);
-        boolean noiseConcern = text.contains("noise") || text.contains("noisy")
-                || text.contains("maingay") || text.contains("ingay")
-                || text.contains("videoke") || text.contains("karaoke")
-                || text.contains("loud music") || text.contains("malakas ang tugtog")
-                || text.contains("malakas ang music");
-        if (!noiseConcern) return false;
-
-        // Do not apply the ordinary-noise exception when the same report also
-        // mentions conflict, threats, injury, weapons, or self-harm.
-        return !Set.of("away", "nanakit", "sinaktan", "suntok", "suntukan", "banta",
-                "threat", "takot", "baril", "kutsilyo", "bubugbugin", "binubugbog",
-                "abuso", "rape", "saksak", "sinaksak", "papatayin", "patayin",
-                "magpapakamatay", "suicide", "self-harm").stream().anyMatch(text::contains);
     }
 
     // =====================================================

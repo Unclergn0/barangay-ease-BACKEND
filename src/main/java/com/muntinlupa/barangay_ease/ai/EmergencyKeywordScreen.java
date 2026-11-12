@@ -62,6 +62,10 @@ public final class EmergencyKeywordScreen {
         public boolean immediate() {
             return level == Level.IMMEDIATE;
         }
+
+        public boolean selfHarm() {
+            return incidentType == IncidentType.SELF_HARM;
+        }
     }
 
     private static final int FLAGS =
@@ -81,105 +85,51 @@ public final class EmergencyKeywordScreen {
     // =====================================================
 
     private static final Pattern STABBING = words(
-            "sinaksak",
-            "nasaksak",
-            "sinaksakan",
-            "nanaksak",
-            "nanunaksak",
-            "pananaksak",
-            "sinaksak\\s+ng",
-            "stab",
-            "stabs",
-            "stabbed",
-            "stabbing",
-            "na-?stab(?:bed|bing)?",
-            "knife\\s+attack",
-            "knife\\s+wound",
-            "stab\\s+wound"
+            "sinaksak", "nasaksak", "sinaksakan",
+            "nanaksak", "nanunaksak", "pananaksak",
+            "sinaksak\\s+ng", "stab", "stabs",
+            "stabbed", "stabbing", "na-?stab(?:bed|bing)?",
+            "knife\\s+attack", "knife\\s+wound", "stab\\s+wound"
     );
 
     private static final Pattern SHOOTING = words(
-            "binaril",
-            "binarel",
-            "binabaril",
-            "binarilan",
-            "nabaril",
-            "pamamaril",
-            "pagbaril",
-            "barilan",
-            "nagpaputok\\s+ng\\s+baril",
-            "gunshots?",
-            "gun\\s+shots?",
-            "shooting",
-            "shooter",
-            "shot\\s+at",
-            "shot\\s+dead",
-            "shot\\s+someone",
-            "shot\\s+him",
-            "shot\\s+her",
-            "shot\\s+me",
-            "na-?shot",
-            "na-?shoot",
-            "someone\\s+was\\s+shot",
-            "person\\s+was\\s+shot"
+            "binaril", "binarel", "binabaril", "binarilan",
+            "nabaril", "pamamaril", "pagbaril", "barilan",
+            "nagpaputok\\s+ng\\s+baril", "gunshots?",
+            "gun\\s+shots?", "shooting", "shooter",
+            "shot\\s+at", "shot\\s+dead", "shot\\s+someone",
+            "shot\\s+him", "shot\\s+her", "shot\\s+me",
+            "na-?shot", "na-?shoot",
+            "someone\\s+was\\s+shot", "person\\s+was\\s+shot"
     );
 
     private static final Pattern MURDER = words(
-            "murder",
-            "murdered",
-            "murdering",
-            "murders",
-            "homicide",
-            "pinatay",
-            "pumatay",
-            "pagpatay",
-            "pagpapatay",
-            "pinapatay",
-            "papatayin",
-            "patayin",
-            "napatay",
-            "may\\s+pumatay",
-            "killing\\s+incident",
-            "killed\\s+someone",
-            "someone\\s+was\\s+killed",
+            "murder", "murdered", "murdering", "murders",
+            "homicide", "pinatay", "pumatay", "pagpatay",
+            "pagpapatay", "pinapatay", "papatayin", "patayin",
+            "napatay", "may\\s+pumatay", "killing\\s+incident",
+            "killed\\s+someone", "someone\\s+was\\s+killed",
             "found\\s+dead"
     );
 
     private static final Pattern RAPE = words(
-            "rape",
-            "raped",
-            "raping",
-            "rapist",
-            "ni-?rape",
-            "ginahasa",
-            "ginagahasa",
-            "panggagahasa",
-            "gahasa",
-            "naghahasa"
+            "rape", "raped", "raping", "rapist",
+            "ni-?rape", "ginahasa", "ginagahasa",
+            "panggagahasa", "gahasa", "naghahasa"
     );
 
     private static final Pattern SEXUAL_ASSAULT = words(
-            "sexual\\s+assault",
-            "sexually\\s+assaulted",
-            "sexual\\s+abuse",
-            "sexual\\s+harassment",
-            "sexually\\s+harassed",
-            "hinalay",
-            "hinahalay",
-            "panghahalay",
-            "molest\\w*",
-            "minolestiya",
-            "hinipuan",
-            "hinahipuan"
+            "sexual\\s+assault", "sexually\\s+assaulted",
+            "sexual\\s+abuse", "sexual\\s+harassment",
+            "sexually\\s+harassed", "hinalay", "hinahalay",
+            "panghahalay", "molest\\w*", "minolestiya",
+            "hinipuan", "hinahipuan"
     );
 
     private static final Pattern CHILD_ABUSE = words(
-            "child\\s+abuse",
-            "child\\s+neglect",
-            "abused\\s+child",
-            "abused\\s+the\\s+child",
-            "inabuso\\s+ang\\s+bata",
-            "inaabuso\\s+ang\\s+bata",
+            "child\\s+abuse", "child\\s+neglect",
+            "abused\\s+child", "abused\\s+the\\s+child",
+            "inabuso\\s+ang\\s+bata", "inaabuso\\s+ang\\s+bata",
             "binubugbog\\s+ang\\s+bata",
             "sinaktan\\s+ang\\s+bata",
             "child\\s+exploitation",
@@ -187,10 +137,8 @@ public final class EmergencyKeywordScreen {
     );
 
     private static final Pattern DOMESTIC_VIOLENCE = words(
-            "domestic\\s+violence",
-            "domestic\\s+abuse",
-            "intimate\\s+partner\\s+violence",
-            "vawc",
+            "domestic\\s+violence", "domestic\\s+abuse",
+            "intimate\\s+partner\\s+violence", "vawc",
             "binubugbog\\s+ako\\s+ng\\s+(?:asawa|mister|partner|boyfriend|live-?in)",
             "binugbog\\s+ako\\s+ng\\s+(?:asawa|mister|partner|boyfriend|live-?in)",
             "sinasaktan\\s+ako\\s+ng\\s+(?:asawa|mister|partner|boyfriend|live-?in)",
@@ -199,95 +147,54 @@ public final class EmergencyKeywordScreen {
     );
 
     private static final Pattern PHYSICAL_ASSAULT = words(
-            "binubugbog",
-            "binugbog",
-            "pambubugbog",
-            "binugbog\\s+ako",
-            "sinuntok",
-            "sinusuntok",
-            "sinipa",
-            "sinisipa",
-            "sinaktan",
-            "sinasaktan",
-            "physical\\s+assault",
-            "physically\\s+attacked",
-            "assaulted",
-            "attacked\\s+me",
-            "beaten\\s+up",
+            "binubugbog", "binugbog", "pambubugbog",
+            "binugbog\\s+ako", "sinuntok", "sinusuntok",
+            "sinipa", "sinisipa", "sinaktan", "sinasaktan",
+            "physical\\s+assault", "physically\\s+attacked",
+            "assaulted", "attacked\\s+me", "beaten\\s+up",
             "beating\\s+someone"
     );
 
     private static final Pattern KIDNAPPING = words(
-            "kidnap\\w*",
-            "kidnapped",
-            "kidnapping",
-            "dinukot",
-            "dinudukot",
-            "dinukot\\s+ang",
+            "kidnap\\w*", "kidnapped", "kidnapping",
+            "dinukot", "dinudukot", "dinukot\\s+ang",
             "dinakip\\s+at\\s+dinala",
-            "sapilitang\\s+kinuha",
-            "sapilitang\\s+dinala"
+            "sapilitang\\s+kinuha", "sapilitang\\s+dinala"
     );
 
     private static final Pattern HOSTAGE = words(
-            "hostage",
-            "hostages",
-            "hostage-taking",
-            "hostage\\s+situation",
-            "ginawang\\s+bihag",
-            "ginawang\\s+hostage",
-            "binihag",
-            "bihag"
+            "hostage", "hostages", "hostage-taking",
+            "hostage\\s+situation", "ginawang\\s+bihag",
+            "ginawang\\s+hostage", "binihag", "bihag"
     );
 
     private static final Pattern HUMAN_TRAFFICKING = words(
-            "human\\s+trafficking",
-            "trafficking\\s+in\\s+persons",
-            "sex\\s+trafficking",
-            "labor\\s+trafficking",
-            "trafficked",
-            "trafficking",
-            "illegal\\s+recruitment",
-            "sapilitang\\s+pinagtatrabaho",
-            "ipinagbili\\s+ang\\s+tao"
+            "human\\s+trafficking", "trafficking\\s+in\\s+persons",
+            "sex\\s+trafficking", "labor\\s+trafficking",
+            "trafficked", "trafficking", "illegal\\s+recruitment",
+            "sapilitang\\s+pinagtatrabaho", "ipinagbili\\s+ang\\s+tao"
     );
 
     private static final Pattern ARMED_ROBBERY = words(
-            "armed\\s+robbery",
-            "holdap",
-            "hold-?up",
-            "hinoldap",
-            "nanloob\\s+na\\s+may\\s+baril",
+            "armed\\s+robbery", "holdap", "hold-?up",
+            "hinoldap", "nanloob\\s+na\\s+may\\s+baril",
             "robbery\\s+with\\s+a\\s+weapon",
-            "robbed\\s+at\\s+gunpoint",
-            "gunpoint\\s+robbery"
+            "robbed\\s+at\\s+gunpoint", "gunpoint\\s+robbery"
     );
 
     private static final Pattern ROBBERY = words(
-            "robbery",
-            "robbed",
-            "robber",
-            "stealing",
-            "stole\\s+my",
-            "ninakawan",
-            "nanakawan",
-            "pagnanakaw",
-            "nagnakaw",
-            "nanloob"
+            "robbery", "robbed", "robber", "stealing",
+            "stole\\s+my", "ninakawan", "nanakawan",
+            "pagnanakaw", "nagnakaw", "nanloob"
     );
 
     private static final Pattern SELF_HARM = words(
-            "suicid\\w*",
-            "magpapakamatay",
-            "magpakamatay",
-            "nagpakamatay",
-            "pagpapakamatay",
-            "kill\\s+myself",
-            "end\\s+my\\s+life",
+            "suicid\\w*", "magpapakamatay", "magpakamatay",
+            "nagpakamatay", "pagpapakamatay",
+            "kill\\s+myself", "end\\s+my\\s+life",
             "ayoko\\s+nang\\s+mabuhay",
             "gusto\\s+ko\\s+nang\\s+mamatay",
-            "self-?harm",
-            "saktan\\s+ang\\s+sarili"
+            "self-?harm", "saktan\\s+ang\\s+sarili"
     );
 
     // =====================================================
@@ -295,142 +202,93 @@ public final class EmergencyKeywordScreen {
     // =====================================================
 
     private static final Pattern FIRE = words(
-            "sunog",
-            "nasusunog",
-            "nasunog",
-            "nagliliyab",
-            "fire",
-            "house\\s+fire",
-            "building\\s+fire",
+            "sunog", "nasusunog", "nasunog", "nagliliyab",
+            "fire", "house\\s+fire", "building\\s+fire",
             "burning\\s+building"
     );
 
     private static final Pattern HEART_ATTACK = words(
-            "heart\\s+attack",
-            "cardiac\\s+arrest",
-            "inatake\\s+sa\\s+puso",
-            "atake\\s+sa\\s+puso",
+            "heart\\s+attack", "cardiac\\s+arrest",
+            "inatake\\s+sa\\s+puso", "atake\\s+sa\\s+puso",
             "atake\\s+sa\\s+heart"
     );
 
     private static final Pattern STROKE = words(
-            "stroke",
-            "na-?stroke",
-            "brain\\s+attack",
-            "na-stroke"
+            "stroke", "na-?stroke", "brain\\s+attack"
     );
 
     private static final Pattern UNCONSCIOUSNESS = words(
-            "nahimatay",
-            "hinimatay",
-            "walang\\s+malay",
-            "unconscious",
-            "collapsed",
-            "passed\\s+out",
+            "nahimatay", "hinimatay", "walang\\s+malay",
+            "unconscious", "collapsed", "passed\\s+out",
             "nawalan\\s+ng\\s+malay"
     );
 
     private static final Pattern BREATHING_DIFFICULTY = words(
             "hindi\\s+(?:na\\s+)?humihinga",
             "di\\s+(?:na\\s+)?humihinga",
-            "hirap\\s+huminga",
-            "hindi\\s+makahinga",
-            "di\\s+makahinga",
-            "not\\s+breathing",
-            "difficulty\\s+breathing",
-            "trouble\\s+breathing",
-            "can'?t\\s+breathe",
-            "cannot\\s+breathe",
+            "hirap\\s+huminga", "hindi\\s+makahinga",
+            "di\\s+makahinga", "not\\s+breathing",
+            "difficulty\\s+breathing", "trouble\\s+breathing",
+            "can'?t\\s+breathe", "cannot\\s+breathe",
             "shortness\\s+of\\s+breath"
     );
 
     private static final Pattern SEIZURE = words(
-            "seizure",
-            "seizures",
-            "kombulsyon",
-            "nagko-?convulse",
-            "convulsion",
-            "convulsing"
+            "seizure", "seizures", "kombulsyon",
+            "nagko-?convulse", "convulsion", "convulsing"
     );
 
     private static final Pattern BLEEDING = words(
-            "dumudugo",
-            "nagdurugo",
-            "matinding\\s+pagdurugo",
-            "malakas\\s+ang\\s+dugo",
-            "bleeding",
-            "heavy\\s+bleeding",
-            "severe\\s+bleeding",
-            "hemorrhage"
+            "dumudugo", "nagdurugo",
+            "matinding\\s+pagdurugo", "malakas\\s+ang\\s+dugo",
+            "bleeding", "heavy\\s+bleeding",
+            "severe\\s+bleeding", "hemorrhage"
     );
 
     private static final Pattern ACCIDENT = words(
-            "naaksidente",
-            "aksidente",
-            "accident",
-            "nabangga",
-            "nasagasaan",
-            "vehicular\\s+accident",
-            "car\\s+crash",
-            "motorcycle\\s+crash",
-            "road\\s+accident",
+            "naaksidente", "aksidente", "accident",
+            "nabangga", "nasagasaan",
+            "vehicular\\s+accident", "car\\s+crash",
+            "motorcycle\\s+crash", "road\\s+accident",
             "collision"
     );
 
     private static final Pattern DROWNING = words(
-            "nalulunod",
-            "nalunod",
-            "drowning",
-            "drowned",
-            "lumulubog\\s+sa\\s tubig",
+            "nalulunod", "nalunod", "drowning", "drowned",
+            "lumulubog\\s+sa\\s+tubig",
             "nalulunod\\s+sa\\s+tubig"
     );
 
     private static final Pattern GAS_LEAK = words(
-            "gas\\s+leak",
-            "leaking\\s+gas",
-            "tagas\\s+ng\\s+gas",
-            "amoy\\s+gas",
+            "gas\\s+leak", "leaking\\s+gas",
+            "tagas\\s+ng\\s+gas", "amoy\\s+gas",
             "sumisingaw\\s+na\\s+gas"
     );
 
     private static final Pattern ELECTROCUTION = words(
-            "nakuryente",
-            "nakakuryente",
-            "electrocuted",
-            "electrocution",
-            "electric\\s+shock",
+            "nakuryente", "nakakuryente", "electrocuted",
+            "electrocution", "electric\\s+shock",
             "tinamaan\\s+ng\\s+kuryente"
     );
 
     private static final Pattern FLOOD = words(
-            "baha",
-            "binaha",
-            "bumabaha",
-            "flood",
-            "flooding",
-            "flash\\s+flood"
+            "baha", "binaha", "bumabaha", "flood",
+            "flooding", "flash\\s+flood"
     );
 
     private static final Pattern LANDSLIDE = words(
-            "landslide",
-            "mudslide",
-            "guho",
-            "pagguho\\s+ng\\s+lupa",
-            "gumuho\\s+ang\\s+lupa"
+            "landslide", "mudslide", "guho",
+            "pagguho\\s+ng\\s+lupa", "gumuho\\s+ang\\s+lupa"
     );
 
     private static final Pattern EARTHQUAKE = words(
-            "lindol",
-            "earthquake",
-            "aftershock"
+            "lindol", "earthquake", "aftershock"
     );
 
     private static final Pattern WEAPON_THREAT = words(
             "may\\s+hawak\\s+na\\s+(?:baril|kutsilyo|patalim)",
             "may\\s+(?:baril|kutsilyo|patalim)",
-            "armed\\s+person",
-            "person\\s+with\\s+a\\s+gun",
+            "armed\\s+person", "person\\s+with\\s+a\\s+gun",
             "person\\s+with\\s+a\\s+knife",
             "threatened\\s+me\\s+with\\s+a\\s+weapon",
             "tinakot\\s+ako\\s+ng\\s+(?:baril|kutsilyo)",
@@ -438,11 +296,9 @@ public final class EmergencyKeywordScreen {
     );
 
     private static final Pattern BOMB_THREAT = words(
-            "bomb\\s+threat",
-            "may\\s+bomba",
+            "bomb\\s+threat", "may\\s+bomba",
             "may\\s+nagbanta\\s+ng\\s+bomba",
-            "bomba",
-            "explosive\\s+threat"
+            "bomba", "explosive\\s+threat"
     );
 
     private EmergencyKeywordScreen() {
@@ -450,7 +306,6 @@ public final class EmergencyKeywordScreen {
 
     // =====================================================
     // SCREEN COMPLAINT
-    // One incident type and one response are returned.
     // =====================================================
 
     public static Result screen(String text) {
@@ -465,7 +320,7 @@ public final class EmergencyKeywordScreen {
                 .replaceAll("\\s+", " ")
                 .trim();
 
-        // Critical incidents take priority over immediate incidents.
+        // Critical incidents take priority.
 
         if (STABBING.matcher(normalized).find())
             return critical(IncidentType.STABBING);
@@ -509,7 +364,7 @@ public final class EmergencyKeywordScreen {
         if (PHYSICAL_ASSAULT.matcher(normalized).find())
             return critical(IncidentType.PHYSICAL_ASSAULT);
 
-        // Immediate emergencies
+        // Immediate emergencies.
 
         if (BOMB_THREAT.matcher(normalized).find())
             return immediate(IncidentType.BOMB_THREAT);
