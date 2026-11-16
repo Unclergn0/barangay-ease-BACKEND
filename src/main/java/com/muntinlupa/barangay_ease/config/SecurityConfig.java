@@ -136,7 +136,8 @@ public class SecurityConfig {
 
                 .requestMatchers(
                         "/error",
-                        "/static/**"
+                        "/static/**",
+                        "/ping"
                 ).permitAll()
 
                 // ----------------------------------
