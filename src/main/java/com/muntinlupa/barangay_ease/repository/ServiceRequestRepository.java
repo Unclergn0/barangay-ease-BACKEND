@@ -7,4 +7,5 @@ import java.util.List;
 public interface ServiceRequestRepository extends JpaRepository<ServiceRequest, Integer> {
     List<ServiceRequest> findByResident_ResidentId(Integer residentId);
     List<ServiceRequest> findByResident_BarangayId(Integer barangayId);
+    List<ServiceRequest> findByBarangayId(Integer barangayId);
 }
