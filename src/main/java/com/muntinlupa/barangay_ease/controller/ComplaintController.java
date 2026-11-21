@@ -393,6 +393,7 @@ public class ComplaintController {
         result.put("barangayId", complaint.getBarangayId());
         result.put("complainantName", complaint.getComplainantName());
         result.put("title", complaint.getTitle());
+        result.put("complaintTitle", complaint.getTitle());
         result.put("description", complaint.getDescription());
         result.put("complaintDetails", complaint.getDescription());
         result.put("classificationType", complaint.getClassificationType());

@@ -624,17 +624,26 @@ public class ComplaintService {
                 ? ""
                 : action.trim().toUpperCase(Locale.ROOT);
 
-        if ("CANCEL".equals(act)) {
+        if (!"PENDING".equalsIgnoreCase(
+                complaint.getAiReviewStatus())) {
+            throw new IllegalArgumentException(
+                    "Only pending AI complaints can receive a review decision.");
+        }
 
-            complaint.setAiReviewStatus("CANCELLED");
+        if ("REJECT".equals(act) || "CANCEL".equals(act)) {
+
+            // Rejection is a final review decision, not deletion.
+            complaint.setAiReviewStatus("REJECTED");
             complaint.setAiReviewNote(note);
-            complaint.setStatus("Under Review");
+            complaint.setStatus("Rejected");
 
         } else if ("ACCEPT".equals(act)) {
 
+            // Keep the complaint record and expose its accepted state
+            // in both the AI review queue and resident complaints list.
             complaint.setAiReviewStatus("ACCEPTED");
             complaint.setAiReviewNote(note);
-            complaint.setStatus("Under Review");
+            complaint.setStatus("Accepted");
 
         } else if ("UPDATE".equals(act)) {
 
@@ -662,7 +671,7 @@ public class ComplaintService {
         } else {
 
             throw new IllegalArgumentException(
-                    "Action must be ACCEPT, UPDATE, or CANCEL.");
+                    "Action must be ACCEPT, REJECT, UPDATE, or CANCEL.");
         }
 
         complaint.setReviewedBy(
@@ -684,6 +693,7 @@ public class ComplaintService {
                         saved);
 
             } else if ("ACCEPT".equals(act)
+                    || "REJECT".equals(act)
                     || "CANCEL".equals(act)) {
 
                 notifications.complaintStatusChanged(
