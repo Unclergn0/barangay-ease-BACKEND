@@ -1,3 +1,4 @@
+
 package com.muntinlupa.barangay_ease.config;
 
 import com.muntinlupa.barangay_ease.security.JwtAuthenticationFilter;
@@ -29,20 +30,27 @@ public class SecurityConfig {
 
     public SecurityConfig(
             JwtAuthenticationFilter jwtAuthenticationFilter,
-            @Value("${app.cors.allowed-origins:http://localhost:5500,http://127.0.0.1:5500,https://barangayease.netlify.app}")
+            @Value("${app.cors.allowed-origins:http://localhost:5500,http://127.0.0.1:5500,https://barangayease.netlify.app,https://muntinlupacitybarangayease.pages.dev}")
             String origins
     ) {
         this.jwtAuthenticationFilter = jwtAuthenticationFilter;
 
-        List<String> mutableOrigins = new ArrayList<>(Arrays.stream(origins.split(","))
-                .map(String::trim)
-                .filter(origin -> !origin.isBlank())
-                .distinct()
-                .toList());
+        List<String> mutableOrigins = new ArrayList<>(
+                Arrays.stream(origins.split(","))
+                        .map(String::trim)
+                        .filter(origin -> !origin.isBlank())
+                        .distinct()
+                        .toList()
+        );
 
-        // Siguraduhing laging kasama ang Netlify frontend domain
+        // Preserve existing Netlify frontend
         if (!mutableOrigins.contains("https://barangayease.netlify.app")) {
             mutableOrigins.add("https://barangayease.netlify.app");
+        }
+
+        // Allow new Cloudflare Pages frontend
+        if (!mutableOrigins.contains("https://muntinlupacitybarangayease.pages.dev")) {
+            mutableOrigins.add("https://muntinlupacitybarangayease.pages.dev");
         }
 
         this.allowedOrigins = mutableOrigins;
@@ -73,12 +81,12 @@ public class SecurityConfig {
     ) throws Exception {
 
         http
-            // CORS
+            // CORS CONFIGURATION
             .cors(cors -> cors
                     .configurationSource(corsConfigurationSource())
             )
 
-            // JWT stateless authentication
+            // JWT STATELESS AUTHENTICATION
             .csrf(csrf -> csrf.disable())
 
             .formLogin(form -> form.disable())
@@ -193,11 +201,21 @@ public class SecurityConfig {
         return http.build();
     }
 
+    // ==========================================
+    // DISABLE DUPLICATE SERVLET FILTER
+    // REGISTRATION
+    // ==========================================
+
     @Bean
     public FilterRegistrationBean<JwtAuthenticationFilter> jwtFilterServletRegistration(
-            JwtAuthenticationFilter filter) {
-        FilterRegistrationBean<JwtAuthenticationFilter> registration = new FilterRegistrationBean<>(filter);
+            JwtAuthenticationFilter filter
+    ) {
+
+        FilterRegistrationBean<JwtAuthenticationFilter> registration =
+                new FilterRegistrationBean<>(filter);
+
         registration.setEnabled(false);
+
         return registration;
     }
 
