@@ -4,10 +4,12 @@ import com.muntinlupa.barangay_ease.model.Barangay;
 import com.muntinlupa.barangay_ease.model.Complaint;
 import com.muntinlupa.barangay_ease.model.Resident;
 import com.muntinlupa.barangay_ease.model.ServiceRequest;
+import com.muntinlupa.barangay_ease.model.ResidentFeedback;
 import com.muntinlupa.barangay_ease.repository.BarangayRepository;
 import com.muntinlupa.barangay_ease.repository.ComplaintRepository;
 import com.muntinlupa.barangay_ease.repository.ResidentRepository;
 import com.muntinlupa.barangay_ease.repository.ServiceRequestRepository;
+import com.muntinlupa.barangay_ease.repository.ResidentFeedbackRepository;
 import com.muntinlupa.barangay_ease.security.AppUser;
 import com.muntinlupa.barangay_ease.security.CurrentUser;
 import org.springframework.format.annotation.DateTimeFormat;
@@ -31,16 +33,19 @@ public class AnalyticsController {
     private final ServiceRequestRepository requests;
     private final ResidentRepository residents;
     private final BarangayRepository barangays;
+    private final ResidentFeedbackRepository feedback;
 
     public AnalyticsController(
             ComplaintRepository complaints,
             ServiceRequestRepository requests,
             ResidentRepository residents,
-            BarangayRepository barangays) {
+            BarangayRepository barangays,
+            ResidentFeedbackRepository feedback) {
         this.complaints = complaints;
         this.requests = requests;
         this.residents = residents;
         this.barangays = barangays;
+        this.feedback = feedback;
     }
 
     @GetMapping("/report")
@@ -141,6 +146,35 @@ public class AnalyticsController {
             }
         }
 
+        // Resident ratings are persisted independently and grouped by the resident's
+        // barangay at submission time. The same report date filter applies.
+        List<ResidentFeedback> filteredFeedback = feedback
+                .findByCreatedAtGreaterThanEqualAndCreatedAtLessThan(from, until);
+        long totalRatings = 0L;
+        long totalRatingScore = 0L;
+        Map<String, Long> overallRatingDistribution = new LinkedHashMap<>();
+        for (int star = 1; star <= 5; star++) overallRatingDistribution.put(String.valueOf(star), 0L);
+
+        for (ResidentFeedback rating : filteredFeedback) {
+            Map<String, Object> summary = summaries.get(rating.getBarangayId());
+            if (summary == null || rating.getRating() == null
+                    || rating.getRating() < 1 || rating.getRating() > 5) continue;
+            int stars = rating.getRating();
+            increment(summary, "ratingCount");
+            increment(summary, "ratingScore", stars);
+            increment(summary, "rating" + stars + "Star");
+            totalRatings++;
+            totalRatingScore += stars;
+            overallRatingDistribution.put(String.valueOf(stars),
+                    overallRatingDistribution.get(String.valueOf(stars)) + 1L);
+        }
+        for (Map<String, Object> summary : summaries.values()) {
+            long count = ((Number) summary.get("ratingCount")).longValue();
+            long score = ((Number) summary.get("ratingScore")).longValue();
+            summary.put("averageRating", count == 0 ? 0.0 : Math.round((score * 100.0 / count)) / 100.0);
+            summary.remove("ratingScore");
+        }
+
         List<Map<String, Object>> barangayRows = new ArrayList<>(summaries.values());
         long totalResidents = sum(barangayRows, "residents");
         long totalComplaints = sum(barangayRows, "complaints");
@@ -159,6 +193,10 @@ public class AnalyticsController {
         result.put("totalCriticalComplaints", totalCriticalComplaints);
         result.put("totalRequests", totalRequests);
         result.put("pendingRequests", pendingRequests);
+        result.put("totalRatings", totalRatings);
+        result.put("averageRating", totalRatings == 0 ? 0.0
+                : Math.round((totalRatingScore * 100.0 / totalRatings)) / 100.0);
+        result.put("ratingDistribution", overallRatingDistribution);
         result.put("priorityDistribution", priorityDistribution);
         result.put("daily", new ArrayList<>(dailyByDate.values()));
         result.put("criticalComplaints", criticalRows);
@@ -175,6 +213,10 @@ public class AnalyticsController {
         row.put("criticalComplaints", 0L);
         row.put("requests", 0L);
         row.put("pendingRequests", 0L);
+        row.put("ratingCount", 0L);
+        row.put("ratingScore", 0L);
+        row.put("averageRating", 0.0);
+        for (int star = 1; star <= 5; star++) row.put("rating" + star + "Star", 0L);
         return row;
     }
 
@@ -217,7 +259,11 @@ public class AnalyticsController {
     }
 
     private void increment(Map<String, Object> row, String key) {
-        row.put(key, ((Number) row.getOrDefault(key, 0L)).longValue() + 1L);
+        increment(row, key, 1L);
+    }
+
+    private void increment(Map<String, Object> row, String key, long amount) {
+        row.put(key, ((Number) row.getOrDefault(key, 0L)).longValue() + amount);
     }
 
     private long sum(List<Map<String, Object>> rows, String key) {

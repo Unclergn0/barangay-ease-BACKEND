@@ -119,10 +119,10 @@ public class LlmGateway {
             @Value("${app.groq.model:}")
             String groqModel,
 
-            @Value("${app.gemini.connect-timeout-seconds:15}")
+            @Value("${app.gemini.connect-timeout-seconds:5}")
             long connectSeconds,
 
-            @Value("${app.gemini.request-timeout-seconds:60}")
+            @Value("${app.gemini.request-timeout-seconds:9}")
             long requestSeconds,
 
             @Value("${app.ai.cooldown-seconds:120}")
@@ -141,7 +141,7 @@ public class LlmGateway {
         this.client = HttpClient.newBuilder()
                 .connectTimeout(
                         Duration.ofSeconds(
-                                Math.max(5, connectSeconds)
+                                Math.max(3, connectSeconds)
                         )
                 )
                 .followRedirects(HttpClient.Redirect.NORMAL)
@@ -451,7 +451,7 @@ public class LlmGateway {
                 "generationConfig",
                 Map.of(
                         "temperature", temperature,
-                        "maxOutputTokens", 1200
+                        "maxOutputTokens", 800
                 )
         );
 
@@ -513,7 +513,7 @@ public class LlmGateway {
 
         payload.put("model", provider.model);
         payload.put("temperature", temperature);
-        payload.put("max_tokens", 1200);
+        payload.put("max_tokens", 800);
 
         List<Map<String, Object>> messages = new ArrayList<>();
 

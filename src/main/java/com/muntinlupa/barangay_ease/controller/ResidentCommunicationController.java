@@ -1,6 +1,8 @@
 package com.muntinlupa.barangay_ease.controller;
 
 import com.muntinlupa.barangay_ease.model.Resident;
+import com.muntinlupa.barangay_ease.model.ResidentFeedback;
+import com.muntinlupa.barangay_ease.repository.ResidentFeedbackRepository;
 import com.muntinlupa.barangay_ease.repository.ResidentRepository;
 import com.muntinlupa.barangay_ease.security.AppUser;
 import com.muntinlupa.barangay_ease.security.CurrentUser;
@@ -18,10 +20,13 @@ public class ResidentCommunicationController {
 
     private final ResidentRepository residents;
     private final NotificationService notifications;
+    private final ResidentFeedbackRepository feedbackRepository;
 
-    public ResidentCommunicationController(ResidentRepository residents, NotificationService notifications) {
+    public ResidentCommunicationController(ResidentRepository residents, NotificationService notifications,
+                                           ResidentFeedbackRepository feedbackRepository) {
         this.residents = residents;
         this.notifications = notifications;
+        this.feedbackRepository = feedbackRepository;
     }
 
     @PostMapping("/resident/inquiries")
@@ -61,6 +66,13 @@ public class ResidentCommunicationController {
             return ResponseEntity.status(HttpStatus.FORBIDDEN)
                     .body(Map.of("message", "Your resident barangay assignment is missing. Contact the barangay office."));
         }
+        ResidentFeedback feedback = new ResidentFeedback();
+        feedback.setResidentId(resident.getResidentId());
+        feedback.setBarangayId(resident.getBarangayId());
+        feedback.setRating(request.rating());
+        feedback.setComment(comment);
+        feedbackRepository.save(feedback);
+
         String residentName = (resident.getFirstName() + " " + resident.getLastName()).trim();
         notifications.notifyBarangayAdmins(resident.getBarangayId(), "Resident feedback: " + request.rating() + "/5",
                 "From " + residentName + " (Resident ID " + resident.getResidentId() + "): "

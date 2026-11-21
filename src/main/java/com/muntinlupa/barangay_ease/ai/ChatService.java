@@ -12,7 +12,9 @@ import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Service;
 
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
+import org.springframework.data.domain.PageRequest;
 
 @Service
 public class ChatService {
@@ -20,7 +22,7 @@ public class ChatService {
     private static final Logger log =
             LoggerFactory.getLogger(ChatService.class);
 
-    private static final int MAX_HISTORY_MESSAGES = 20;
+    private static final int MAX_HISTORY_MESSAGES = 12;
 
     private final KnowledgeBase knowledgeBase;
     private final LlmGateway llmGateway;
@@ -95,22 +97,19 @@ public class ChatService {
         saveMessage(conversation, "USER", userMessage);
 
         // Load conversation history
-        List<ChatMessage> storedMessages =
-                messageRepository
-                        .findByConversation_ConversationIdOrderByCreatedAtAscMessageIdAsc(
-                                conversation.getConversationId()
-                        );
-
-        int startIndex = Math.max(
-                0,
-                storedMessages.size() - MAX_HISTORY_MESSAGES
+        // Fetch only the newest messages instead of loading the entire lifetime
+        // conversation and trimming it in application memory.
+        List<ChatMessage> storedMessages = new ArrayList<>(
+                messageRepository.findByConversation_ConversationIdOrderByCreatedAtDescMessageIdDesc(
+                        conversation.getConversationId(),
+                        PageRequest.of(0, MAX_HISTORY_MESSAGES)
+                )
         );
+        Collections.reverse(storedMessages);
 
         List<LlmGateway.ChatTurn> history = new ArrayList<>();
 
-        for (int i = startIndex; i < storedMessages.size(); i++) {
-
-            ChatMessage message = storedMessages.get(i);
+        for (ChatMessage message : storedMessages) {
 
             String role;
 
