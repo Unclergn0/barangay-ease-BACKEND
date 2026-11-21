@@ -227,7 +227,18 @@ public class ServiceRequestController {
                         return ResponseEntity.status(HttpStatus.CREATED).body(saved);
 
                 } catch (Exception e) {
-                        storedPaths.forEach(storage::delete);
+                        for (String storedPath : storedPaths) {
+                                if (storedPath == null) {
+                                        continue;
+                                }
+
+                                try {
+                                        storage.delete(storedPath);
+                                } catch (java.io.IOException cleanupEx) {
+                                        e.addSuppressed(cleanupEx);
+                                }
+                        }
+
                         if (createdRequestId != null) {
                                 try { requests.deleteById(createdRequestId); } catch (RuntimeException ignored) { }
                         }
@@ -320,7 +331,14 @@ public class ServiceRequestController {
                                         Map.of("message", "File replaced successfully."));
 
                 } catch (Exception e) {
-                        storage.delete(replacementPath);
+                        if (replacementPath != null) {
+                                try {
+                                        storage.delete(replacementPath);
+                                } catch (java.io.IOException cleanupEx) {
+                                        e.addSuppressed(cleanupEx);
+                                }
+                        }
+
                         return ResponseEntity.badRequest()
                                         .body(Map.of("message", "Unable to replace file."));
                 }

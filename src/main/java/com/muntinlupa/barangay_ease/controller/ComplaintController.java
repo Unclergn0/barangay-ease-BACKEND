@@ -623,11 +623,20 @@ public class ComplaintController {
                             "Complaint attachment replaced successfully."));
 
         } catch (Exception ex) {
+    if (replacementPath != null) {
+        try {
             storage.delete(replacementPath);
-            return ResponseEntity.internalServerError()
-                    .body(Map.of(
-                            "message",
-                            "Unable to replace complaint attachment."));
+        } catch (Exception cleanupEx) {
+            log.warn("Failed to clean up replacement attachment: {}", replacementPath, cleanupEx);
         }
+    }
+
+    log.error("Unable to replace complaint attachment", ex);
+
+    return ResponseEntity.internalServerError()
+            .body(Map.of(
+                    "message",
+                    "Unable to replace complaint attachment."));
+}
     }
 }
