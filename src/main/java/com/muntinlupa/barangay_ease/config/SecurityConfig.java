@@ -154,7 +154,8 @@ public class SecurityConfig {
 
                 .requestMatchers(
                         "/api/services/admin/**",
-                        "/api/complaints/admin/**"
+                        "/api/complaints/admin/**",
+                        "/api/admin/feedback/**"
                 ).hasRole("ADMIN")
 
                 .requestMatchers(
